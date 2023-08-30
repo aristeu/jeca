@@ -1,0 +1,26 @@
+#!/bin/bash
+
+OS=$(uname)
+
+if [ "$OS" == "Linux" ]; then
+        BIN_DIR=$(dirname $(readlink -m $BASH_SOURCE))
+else
+	# hi Jarod
+	echo "Nope. Not happening. Mail filters already in place." >&2;
+	exit 1;
+fi
+
+INSTALLED=0;
+
+if [ $INSTALLED = 0 ]; then
+        if [ -z "$JECA_BASE" ]; then
+                export JECA_BASE="$(readlink -e $BIN_DIR/)/.."
+        fi
+        export PYTHONPATH="$JECA_BASE:$PYTHONPATH";
+fi
+
+export LC_ALL="en_US.utf-8";
+export LC_CTYPE="en_US.utf-8";
+
+$JECA_BASE/jeca/jeca-run.py "$@";
+
