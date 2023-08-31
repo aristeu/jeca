@@ -28,6 +28,8 @@ default_filter = [ 'assignee = currentuser()' ]
 default_fields = [ 'key', 'summary' ]
 def op_list(config, jirainst, opts, args):
     fields = []
+    jql = ""
+    search_filter = []
     for option,value in opts:
         if option == '--fields' or option == '-f':
             fields_input = value.split(',')
@@ -38,6 +40,13 @@ def op_list(config, jirainst, opts, args):
             usage(sys.stderr)
             sys.exit(2)
 
+    try:
+        default_project = config['jira']['default_project']
+        default_filter.append("project = %s" % default_project)
+    except:
+        pass
+        default_project = ""
+
     if len(fields) == 0:
         # first look if we have a configuration for this
         try:
@@ -46,7 +55,14 @@ def op_list(config, jirainst, opts, args):
             pass
             fields = default_fields
 
-    jql = " and ".join(default_filter)
+    if len(search_filter) ==0 and len(jql) == 0:
+        try:
+            jql = config['issue-list']['default_jql']
+        except:
+            pass
+            jql = " and ".join(default_filter)
+    elif len(search_filter) > 0:
+        jql = " and ".join(search_filter)
 
     # FIXME: maxResults should be a config
     # FIXME: default_filter should be a config
