@@ -16,17 +16,29 @@ all_columns = ['id', 'name', 'custom', 'orderable', 'navigable', 'searchable', '
 default_columns = [ 'id', 'name' ]
 def op_list(config, jirainst, opts, args):
     columns= []
+    default = True
+    custom = True
     for (opt, arg) in opts:
-        if opt == '-f':
+        if opt == '-f' or opt == '--fields':
             columns = arg.split(',')
             for c in columns:
                 if c not in all_columns:
-                    sys.stderr.write("Invalid field: %s\n", c)
+                    sys.stderr.write("Invalid field: %s\n" % c)
                     sys.exit(1)
+        elif opt == '--nocustom':
+            custom = False
+        elif opt == '--nodefault':
+            default = False
+
     if len(columns) == 0:
         columns = default_columns
 
     for f in jirainst.fields():
+        if custom == False and f['custom'] == True:
+            continue
+        if default == False and f['custom'] == False:
+            continue
+
         line = []
         for c in columns:
             if c in f:
@@ -40,8 +52,9 @@ def op_list(config, jirainst, opts, args):
 
 def op_list_usage(f):
     f.write("jeca field list [-f <fields>] [-h|--help]\n\n")
-    f.write("-f <fields>\t\tspecify which fields to show\n")
-    f.write("--all | -a\t\tlist all TODOs, including ones the MR was closed or merged\n")
+    f.write("-f,--fields <fields>\t\tspecify which fields of fields to show\n")
+    f.write("--nocustom\t\tDon't print custom fields\n")
+    f.write("--nodefault\t\tDon't print Jira's default fields\n")
     f.write("-h|--help\t\tthis message\n\n")
     f.write("Available fields: %s\n" % ', '.join(all_columns))
 # list ######
@@ -49,8 +62,8 @@ def op_list_usage(f):
 MODULE_NAME = "field"
 MODULE_OPERATIONS = { "list": op_list }
 MODULE_OPERATION_USAGE = { "list": op_list_usage }
-MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:a" }
-MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=","all"] }
+MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:" }
+MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "nocustom", "nodefault"] }
 MODULE_OPERATION_REQUIRED_ARGS = { "list": 0 }
 
 def list_operations(f):
