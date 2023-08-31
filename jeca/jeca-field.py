@@ -14,7 +14,7 @@ from atlassian import Jira
 # list ######
 all_columns = ['id', 'name', 'custom', 'orderable', 'navigable', 'searchable', 'customId']
 default_columns = [ 'id', 'name' ]
-def op_list(jirainst, opts, args):
+def op_list(config, jirainst, opts, args):
     columns= []
     for (opt, arg) in opts:
         if opt == '-f':
@@ -90,5 +90,5 @@ def jeca_module_main(config, jirainst, argv):
         MODULE_OPERATION_USAGE[operation](sys.stderr)
         sys.exit(2)
 
-    return MODULE_OPERATIONS[operation](jirainst, opts, args)
+    return MODULE_OPERATIONS[operation](config, jirainst, opts, args)
 

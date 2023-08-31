@@ -11,7 +11,7 @@ import sys
 from jira import JIRA
 
 # list ######
-def op_list(jirainst, opts, args):
+def op_list(config, jirainst, opts, args):
     print("list called")
     for option,value in opts:
         if option == '--foo' or option == '-f':
@@ -71,5 +71,5 @@ def jeca_module_main(config, jirainst, argv):
         MODULE_OPERATION_USAGE[operation](sys.stderr)
         sys.exit(2)
 
-    return MODULE_OPERATIONS[operation](jirainst, opts, args)
+    return MODULE_OPERATIONS[operation](config, jirainst, opts, args)
 

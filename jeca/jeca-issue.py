@@ -25,7 +25,7 @@ from jira import JIRA
 # list ######
 default_filter = 'assignee = "arozansk@redhat.com"'
 default_fields = [ 'key', 'assignee', 'summary' ]
-def op_list(jirainst, opts, args):
+def op_list(config, jirainst, opts, args):
     fields = []
     for option,value in opts:
         if option == '--fields' or option == '-f':
@@ -120,5 +120,5 @@ def jeca_module_main(config, jirainst, argv):
         MODULE_OPERATION_USAGE[operation](sys.stderr)
         sys.exit(2)
 
-    return MODULE_OPERATIONS[operation](jirainst, opts, args)
+    return MODULE_OPERATIONS[operation](config, jirainst, opts, args)
 
