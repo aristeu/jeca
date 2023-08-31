@@ -27,6 +27,13 @@ from jeca.alias import alias_translate
 default_filter = [ 'assignee = currentuser()' ]
 default_fields = [ 'key', 'summary' ]
 def op_list(config, jirainst, opts, args):
+    try:
+        default_project = config['jira']['default_project']
+        default_filter.append("project = %s" % default_project)
+    except:
+        pass
+        default_project = ""
+
     fields = []
     jql = ""
     search_filter = []
@@ -35,17 +42,12 @@ def op_list(config, jirainst, opts, args):
             fields_input = value.split(',')
             for f in fields_input:
                 fields.append(alias_translate(config, f))
+        elif option == '--project' or option == '-p':
+            search_filter.append("project = %s" % value)
         else:
             sys.stderr.write("Unknown option: %s\n" % option)
             usage(sys.stderr)
             sys.exit(2)
-
-    try:
-        default_project = config['jira']['default_project']
-        default_filter.append("project = %s" % default_project)
-    except:
-        pass
-        default_project = ""
 
     if len(fields) == 0:
         # first look if we have a configuration for this
@@ -55,18 +57,18 @@ def op_list(config, jirainst, opts, args):
             pass
             fields = default_fields
 
-    if len(search_filter) ==0 and len(jql) == 0:
+    if len(search_filter) == 0 and len(jql) == 0:
         try:
             jql = config['issue-list']['default_jql']
         except:
             pass
             jql = " and ".join(default_filter)
     elif len(search_filter) > 0:
+        search_filter.remove("project = all")
         jql = " and ".join(search_filter)
 
+
     # FIXME: maxResults should be a config
-    # FIXME: default_filter should be a config
-    # FIXME: default_fields should be a config
     try:
         result = jirainst.search_issues(jql_str = jql, fields = ','.join(fields), maxResults = 500, validate_query = True)
     except Exception as ex:
@@ -97,14 +99,15 @@ def op_list(config, jirainst, opts, args):
 def op_list_usage(f):
     f.write("jeca %s list [-h|--help]\n\n" % MODULE_NAME)
     f.write("-f,--field <fields>\tspecify the fields shown\n")
+    f.write("-p,--project <project>\tfilter by project\n")
     f.write("-h|--help\t\tthis message\n")
 # list ######
 
 MODULE_NAME = "issue"
 MODULE_OPERATIONS = { "list": op_list }
 MODULE_OPERATION_USAGE = { "list": op_list_usage }
-MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:" }
-MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields="] }
+MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:" }
+MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project="] }
 MODULE_OPERATION_REQUIRED_ARGS = { "list": 0 }
 
 def list_operations(f):
