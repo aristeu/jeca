@@ -46,6 +46,8 @@ def op_list(config, jirainst, opts, args):
             search_filter.append("project = %s" % value)
         elif option == '--assignee' or option == '-a':
             search_filter.append("assignee = \"%s\"" % value)
+        elif option == '--jql':
+            jql = value
         else:
             sys.stderr.write("Unknown option: %s\n" % option)
             usage(sys.stderr)
@@ -59,18 +61,19 @@ def op_list(config, jirainst, opts, args):
             pass
             fields = default_fields
 
-    if len(search_filter) == 0 and len(jql) == 0:
-        try:
-            jql = config['issue-list']['default_jql']
-        except:
-            pass
-            jql = " and ".join(default_filter)
-    elif len(search_filter) > 0:
-        try:
-            search_filter.remove("project = all")
-        except:
-            pass
-        jql = " and ".join(search_filter)
+    if len(jql) == 0:
+        if len(search_filter) == 0:
+            try:
+                jql = config['issue-list']['default_jql']
+            except:
+                pass
+                jql = " and ".join(default_filter)
+        else:
+            try:
+                search_filter.remove("project = all")
+            except:
+                pass
+            jql = " and ".join(search_filter)
 
 
     # FIXME: maxResults should be a config
@@ -106,6 +109,7 @@ def op_list_usage(f):
     f.write("-f,--field <fields>\tspecify the fields shown\n")
     f.write("-p,--project <project>\tfilter by project\n")
     f.write("-a,--assignee <user>\tfilter by assignee\n")
+    f.write("--jql <JQL query>\tspecify the JQL query manually\n")
     f.write("-h|--help\t\tthis message\n")
 # list ######
 
@@ -113,7 +117,7 @@ MODULE_NAME = "issue"
 MODULE_OPERATIONS = { "list": op_list }
 MODULE_OPERATION_USAGE = { "list": op_list_usage }
 MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:a:" }
-MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee="] }
+MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql="] }
 MODULE_OPERATION_REQUIRED_ARGS = { "list": 0 }
 
 def list_operations(f):
