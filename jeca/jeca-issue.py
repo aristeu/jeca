@@ -9,6 +9,7 @@
 import getopt
 import sys
 from jira import JIRA
+from jeca.alias import alias_translate
 
 # jira.search_issues()
 # jql_str (str)					 The JQL search string.
@@ -29,7 +30,9 @@ def op_list(config, jirainst, opts, args):
     fields = []
     for option,value in opts:
         if option == '--fields' or option == '-f':
-            fields = value.split(',')
+            fields_input = value.split(',')
+            for f in fields_input:
+                fields.append(alias_translate(config, f))
         else:
             sys.stderr.write("Unknown option: %s\n" % option)
             usage(sys.stderr)
