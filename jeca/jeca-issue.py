@@ -24,7 +24,7 @@ from jeca.alias import alias_translate
 # assignee = currentuser()
 
 # list ######
-default_filter = 'assignee = currentuser()'
+default_filter = [ 'assignee = currentuser()' ]
 default_fields = [ 'key', 'summary' ]
 def op_list(config, jirainst, opts, args):
     fields = []
@@ -39,9 +39,14 @@ def op_list(config, jirainst, opts, args):
             sys.exit(2)
 
     if len(fields) == 0:
-        fields = default_fields
+        # first look if we have a configuration for this
+        try:
+            fields = config['issue-list']['default_fields'].split(',')
+        except:
+            pass
+            fields = default_fields
 
-    jql = default_filter
+    jql = " and ".join(default_filter)
 
     # FIXME: maxResults should be a config
     # FIXME: default_filter should be a config
