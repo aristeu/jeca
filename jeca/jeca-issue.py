@@ -24,8 +24,8 @@ from jeca.alias import alias_translate
 # assignee = currentuser()
 
 # list ######
-default_filter = 'assignee = "arozansk@redhat.com"'
-default_fields = [ 'key', 'assignee', 'summary' ]
+default_filter = 'assignee = currentuser()'
+default_fields = [ 'key', 'summary' ]
 def op_list(config, jirainst, opts, args):
     fields = []
     for option,value in opts:
