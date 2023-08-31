@@ -40,8 +40,7 @@ short_options = "c:h"
 long_options = ["config=", "help"]
 
 def main(cmd, argv):
-    config_file = "~/.config/jeca/config"
-
+    from jeca.config import CONFIG_FILE
     try:
         opts, args = getopt.getopt(sys.argv[1:], short_options, long_options)
     except getopt.GetoptError as err:
@@ -51,7 +50,7 @@ def main(cmd, argv):
 
     for option,value in opts:
         if option == '--config' or option == '-c':
-            config_file = value
+            CONFIG_FILE = value
         elif option == '--help' or option == '-h':
             usage(sys.stdout)
             sys.exit(0)
@@ -62,7 +61,7 @@ def main(cmd, argv):
 
     basename = os.path.basename(cmd.replace('-run.py',''))
     config = configparser.ConfigParser()
-    config.read(os.path.expanduser(config_file))
+    config.read(os.path.expanduser(CONFIG_FILE))
 
     if 'jira' not in config:
         sys.stderr.write("'jira' section not found in the config file. Please create it\n")
