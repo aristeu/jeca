@@ -10,6 +10,7 @@ import getopt
 import sys
 from jira import JIRA
 from jeca.alias import alias_translate
+from jeca.mbox import issue2mbox
 
 # jira.search_issues()
 # jql_str (str)					 The JQL search string.
@@ -113,12 +114,22 @@ def op_list_usage(f):
     f.write("-h|--help\t\tthis message\n")
 # list ######
 
+# mbox ######
+def op_mbox(config, jirainst, opts, args):
+    return issue2mbox(sys.stdout, jirainst, args[0])
+
+def op_mbox_usage(f):
+    f.write("jeca %s mbox [-h|--help]\n\n" % MODULE_NAME)
+    f.write("-h|--help\t\tthis message\n")
+
+# mbox ######
+
 MODULE_NAME = "issue"
-MODULE_OPERATIONS = { "list": op_list }
-MODULE_OPERATION_USAGE = { "list": op_list_usage }
-MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:a:" }
-MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql="] }
-MODULE_OPERATION_REQUIRED_ARGS = { "list": 0 }
+MODULE_OPERATIONS = { "list": op_list, "mbox": op_mbox }
+MODULE_OPERATION_USAGE = { "list": op_list_usage, "mbox": op_mbox_usage }
+MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:a:", "mbox": "" }
+MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql="], "mbox": [] }
+MODULE_OPERATION_REQUIRED_ARGS = { "list": 0, "mbox": 1 }
 
 def list_operations(f):
     for op in MODULE_OPERATIONS:
