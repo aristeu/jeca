@@ -7,10 +7,14 @@
 # the full text of the license.
 
 import getopt
+import os
 import sys
+import subprocess
+import email
+import tempfile
 from jira import JIRA
 from jeca.alias import alias_translate
-from jeca.mbox import issue2mbox
+from jeca.mbox import issue2mbox, mbox2issue
 
 # jira.search_issues()
 # jql_str (str)					 The JQL search string.
@@ -116,19 +120,54 @@ def op_list_usage(f):
 
 # mbox ######
 def op_mbox(config, jirainst, opts, args):
-    return issue2mbox(sys.stdout, jirainst, args[0])
+    comment = False
+    reply = False
+    only_with_aliases = True
+    only_official = False
+    for option,value in opts:
+        if option == '--comment' or option == '-c':
+            comment = True
+        elif option == "-r":
+            reply = True
+        elif option == "all_fields":
+            only_official = False
+            only_with_aliases = False
+        elif option == "official":
+            # all fields overrides everything
+            if only_with_aliases == True:
+                only_official = True
+
+    if comment == True:
+        # FIXME - someday we can implement support for other email clients, for now it's fixed
+        temp = tempfile.NamedTemporaryFile()
+        f = open(temp.name, "w")
+        issue2mbox(config, f, jirainst, args[0], only_official = only_official, only_with_aliases = only_with_aliases)
+        f.close()
+        subprocess.run(['mutt', '-f', f.name, '-e', 'set sendmail=\"jeca issue mbox -r\"', '-e', 'set edit_headers=no', '-e', 'set header=no', '-e', 'unset signature', '-e', 'unset record'])
+        temp.close()
+        return 0
+    elif reply == True:
+        return mbox2issue(config, sys.stdin, jirainst)
+
+    return issue2mbox(config, sys.stdout, jirainst, args[0], only_official = only_official, only_with_aliases = only_with_aliases)
 
 def op_mbox_usage(f):
-    f.write("jeca %s mbox [-h|--help]\n\n" % MODULE_NAME)
+    # we don't advertise -r (reply) because it's not supposed to be used
+    # we also support -f but it's just compatibility with mutt thinking we're sendmail
+    f.write("jeca %s mbox [-c,--comment] <issue>[-h|--help]\n\n" % MODULE_NAME)
+    f.write("-c,--comment\tExport issue's comments as mbox and use mutt to comment. Send the email to submit the comment\n")
+    f.write("--all_fields\tDisplay all issue's fields in the first email\n")
+    f.write("--official\tDisplay only Jira's official issue's fields in the first email\n")
     f.write("-h|--help\t\tthis message\n")
+    f.write("\nBy default the first email will have Jira's official issue's fields and custom fields that have aliases\n")
 
 # mbox ######
 
 MODULE_NAME = "issue"
 MODULE_OPERATIONS = { "list": op_list, "mbox": op_mbox }
 MODULE_OPERATION_USAGE = { "list": op_list_usage, "mbox": op_mbox_usage }
-MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:a:", "mbox": "" }
-MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql="], "mbox": [] }
+MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:a:", "mbox": "crf:" }
+MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql="], "mbox": ["comment","all_fields","official"] }
 MODULE_OPERATION_REQUIRED_ARGS = { "list": 0, "mbox": 1 }
 
 def list_operations(f):
