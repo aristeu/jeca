@@ -42,6 +42,8 @@ def op_list(config, jirainst, opts, args):
     fields = []
     jql = ""
     search_filter = []
+    saved_search = ""
+    save = False
     for option,value in opts:
         if option == '--fields' or option == '-f':
             fields_input = value.split(',')
@@ -53,6 +55,11 @@ def op_list(config, jirainst, opts, args):
             search_filter.append("assignee = \"%s\"" % value)
         elif option == '--jql':
             jql = value
+        elif option == '-s':
+            saved_search = value
+        elif option == '-S':
+            saved_search = value
+            save = True
         else:
             sys.stderr.write("Unknown option: %s\n" % option)
             usage(sys.stderr)
@@ -79,6 +86,26 @@ def op_list(config, jirainst, opts, args):
             except:
                 pass
             jql = " and ".join(search_filter)
+
+    if len(saved_search) > 0:
+        from jeca.config import CONFIG_FILE
+        section = "saved_search_%s" % saved_search
+        if save == True:
+            config_file = open(os.path.expanduser(CONFIG_FILE), 'w')
+            if section not in config:
+                config.add_section(section)
+            config[section]['jql'] = jql
+            config[section]['fields'] = ','.join(fields)
+            config.write(config_file)
+            config_file.close()
+            sys.exit(0)
+
+        try:
+            jql = config[section]['jql']
+            fields = config[section]['fields'].split(',')
+        except:
+            sys.stderr.write("Unable to find saved search %s in the configuration\n" % saved_search)
+            sys.exit(2)
 
 
     # FIXME: maxResults should be a config
@@ -114,6 +141,8 @@ def op_list_usage(f):
     f.write("-f,--field <fields>\tspecify the fields shown\n")
     f.write("-p,--project <project>\tfilter by project\n")
     f.write("-a,--assignee <user>\tfilter by assignee\n")
+    f.write("-s,--saved <name>\tuse saved JQL named <name>\n")
+    f.write("-S,--save <name>\tsave JQL as <name> along with --fields. Final filter based on options or --jql will be saved\n")
     f.write("--jql <JQL query>\tspecify the JQL query manually\n")
     f.write("-h|--help\t\tthis message\n")
 # list ######
@@ -166,8 +195,8 @@ def op_mbox_usage(f):
 MODULE_NAME = "issue"
 MODULE_OPERATIONS = { "list": op_list, "mbox": op_mbox }
 MODULE_OPERATION_USAGE = { "list": op_list_usage, "mbox": op_mbox_usage }
-MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:a:", "mbox": "crf:" }
-MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql="], "mbox": ["comment","all_fields","official"] }
+MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:a:s:S:", "mbox": "crf:" }
+MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql=", "save=", "saved="], "mbox": ["comment","all_fields","official"] }
 MODULE_OPERATION_REQUIRED_ARGS = { "list": 0, "mbox": 1 }
 
 def list_operations(f):
