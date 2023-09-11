@@ -15,7 +15,7 @@ import tempfile
 from jira import JIRA
 from jeca.alias import alias_translate
 from jeca.mbox import issue2mbox, mbox2issue
-from jeca.field import get_all_fields
+from jeca.field import get_all_fields, handle_field
 
 # jira.search_issues()
 # jql_str (str)					 The JQL search string.
@@ -141,7 +141,7 @@ def op_list(config, jirainst, opts, args):
                 # anything. If the field exists but it's not set, it'll return
                 # "None"
                 try:
-                    sys.stdout.write(str(issue.get_field(f)))
+                    handle_field(sys.stdout, f, issue.raw['fields'][f])
                 except:
                     sys.stdout.write('NotDefined')
         sys.stdout.write("\n")

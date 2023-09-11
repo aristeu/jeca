@@ -7,6 +7,7 @@ from dateutil.parser import parse
 from datetime import datetime
 
 from jeca.alias import find_alias_for
+from jeca.field import handle_field
 
 # issue.id
 # issue.self (url)
@@ -15,29 +16,6 @@ from jeca.alias import find_alias_for
 #    print(str(issue.raw[i]))
 #    for i in issue.raw['fields']:
 #        print("%s = %s" % (i, issue.raw['fields'][i]))
-
-def _handle_field(f, field, item):
-    try:
-        f.write("%s" % item['emailAddress'])
-        return
-    except:
-        pass
-    try:
-        f.write("%s" % item['name'])
-        return
-    except:
-        pass
-    try:
-        f.write("%s" % item['value'])
-        return
-    except:
-        pass
-    try:
-        f.write("%s" % item[field])
-        return
-    except:
-        pass
-    f.write("%s" % str(item))
 
 reject_field_list = ['comment', 'issuelinks', 'description', 'attachment', 'watches']
 # issue2mbox: writes a mbox using an issue. Issue's properties are available
@@ -82,15 +60,7 @@ def issue2mbox(config, f, jirainst, key, only_with_aliases = False, only_officia
         f.write("# %s (%s)\n" % (field_db[field], field))
         # fields can point to various objects, so attempt to guess what the value is
         f.write("%s=" % find_alias_for(config, field))
-        if isinstance(issue.raw['fields'][field], list):
-            first = True
-            for item in issue.raw['fields'][field]:
-                if first == False:
-                    f.write(",")
-                _handle_field(f, field, item)
-                first = False
-        else:
-            _handle_field(f, field, issue.raw['fields'][field])
+        handle_field(f, field, issue.raw['fields'][field])
         f.write("\n\n")
 
     # now comments as emails replying to the "meta" email
