@@ -15,6 +15,7 @@ import tempfile
 from jira import JIRA
 from jeca.alias import alias_translate
 from jeca.mbox import issue2mbox, mbox2issue
+from jeca.field import get_all_fields
 
 # jira.search_issues()
 # jql_str (str)					 The JQL search string.
@@ -44,8 +45,15 @@ def op_list(config, jirainst, opts, args):
     search_filter = []
     saved_search = ""
     save = False
+    all_fields = False
     for option,value in opts:
         if option == '--fields' or option == '-f':
+            if value == "all":
+                # so, sigh, if you ask too many fields, jira poops its pants
+                for i in get_all_fields(jirainst):
+                    fields.append(i)
+                all_fields = True
+                continue
             fields_input = value.split(',')
             for f in fields_input:
                 fields.append(alias_translate(config, f))
@@ -110,7 +118,11 @@ def op_list(config, jirainst, opts, args):
 
     # FIXME: maxResults should be a config
     try:
-        result = jirainst.search_issues(jql_str = jql, fields = ','.join(fields), maxResults = 500, validate_query = True)
+        # UGH
+        if len(fields) > 20:
+            result = jirainst.search_issues(jql_str = jql, maxResults = 500, validate_query = True)
+        else:
+            result = jirainst.search_issues(jql_str = jql, fields = fields, maxResults = 500, validate_query = True)
     except Exception as ex:
         sys.stderr.write("Error executing search: %s\n" % str(ex))
         sys.exit(2)
@@ -138,7 +150,7 @@ def op_list(config, jirainst, opts, args):
 
 def op_list_usage(f):
     f.write("jeca %s list [-h|--help]\n\n" % MODULE_NAME)
-    f.write("-f,--field <fields>\tspecify the fields shown\n")
+    f.write("-f,--field <fields>\tspecify the fields shown. 'all' can be used to display all fields but you REALLY don't want that\n")
     f.write("-p,--project <project>\tfilter by project\n")
     f.write("-a,--assignee <user>\tfilter by assignee\n")
     f.write("-s,--saved <name>\tuse saved JQL named <name>\n")
