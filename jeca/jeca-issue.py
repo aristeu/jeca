@@ -68,6 +68,8 @@ def op_list(config, jirainst, opts, args):
         elif option == '-S':
             saved_search = value
             save = True
+        elif option == '-j':
+            search_filter.append("key = \"%s\"" % value)
         else:
             sys.stderr.write("Unknown option: %s\n" % option)
             usage(sys.stderr)
@@ -155,6 +157,7 @@ def op_list_usage(f):
     f.write("-a,--assignee <user>\tfilter by assignee\n")
     f.write("-s,--saved <name>\tuse saved JQL named <name>\n")
     f.write("-S,--save <name>\tsave JQL as <name> along with --fields. Final filter based on options or --jql will be saved\n")
+    f.write("-j <key>\t\tOnly list a specific issue\n")
     f.write("--jql <JQL query>\tspecify the JQL query manually\n")
     f.write("-h|--help\t\tthis message\n")
 # list ######
@@ -207,7 +210,7 @@ def op_mbox_usage(f):
 MODULE_NAME = "issue"
 MODULE_OPERATIONS = { "list": op_list, "mbox": op_mbox }
 MODULE_OPERATION_USAGE = { "list": op_list_usage, "mbox": op_mbox_usage }
-MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:a:s:S:", "mbox": "crf:" }
+MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:a:s:S:j:", "mbox": "crf:" }
 MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql=", "save=", "saved="], "mbox": ["comment","all_fields","official"] }
 MODULE_OPERATION_REQUIRED_ARGS = { "list": 0, "mbox": 1 }
 
