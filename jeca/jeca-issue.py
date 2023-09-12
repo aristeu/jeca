@@ -30,7 +30,7 @@ from jeca.field import get_all_fields, handle_field
 # assignee = currentuser()
 
 # list ######
-default_filter = [ 'assignee = currentuser()' ]
+default_filter = [ 'assignee = currentuser()', 'status not in ("Closed")' ]
 default_fields = [ 'key', 'summary' ]
 def op_list(config, jirainst, opts, args):
     try:
@@ -42,11 +42,12 @@ def op_list(config, jirainst, opts, args):
 
     fields = []
     jql = ""
-    search_filter = []
+    search_filter = [ ]
     saved_search = ""
     save = False
     all_fields = False
     verbose = False
+    hide_closed = True
     for option,value in opts:
         if option == '--fields' or option == '-f':
             if value == "all":
@@ -60,7 +61,7 @@ def op_list(config, jirainst, opts, args):
                 fields.append(alias_translate(config, f))
         elif option == '--project' or option == '-p':
             search_filter.append("project = %s" % value)
-        elif option == '--assignee' or option == '-a':
+        elif option == '--assignee' or option == '-A':
             search_filter.append("assignee = \"%s\"" % value)
         elif option == '--jql':
             jql = value
@@ -73,6 +74,8 @@ def op_list(config, jirainst, opts, args):
             search_filter.append("key = \"%s\"" % value)
         elif option == '-V':
             verbose = True
+        elif option == '-a':
+            default_filter.remove('status not in ("Closed")')
         else:
             sys.stderr.write("Unknown option: %s\n" % option)
             usage(sys.stderr)
@@ -159,11 +162,12 @@ def op_list_usage(f):
     f.write("jeca %s list [-h|--help]\n\n" % MODULE_NAME)
     f.write("-f,--field <fields>\tspecify the fields shown. 'all' can be used to display all fields but you REALLY don't want that\n")
     f.write("-p,--project <project>\tfilter by project\n")
-    f.write("-a,--assignee <user>\tfilter by assignee\n")
+    f.write("-A,--assignee <user>\tfilter by assignee\n")
     f.write("-s,--saved <name>\tuse saved JQL named <name>\n")
     f.write("-S,--save <name>\tsave JQL as <name> along with --fields. Final filter based on options or --jql will be saved\n")
     f.write("-j <key>\t\tOnly list a specific issue\n")
     f.write("-V\t\tInclude field name in each column with the format \"field:value\"\n")
+    f.write("\a\t\tList issues even if they're closed\n")
     f.write("--jql <JQL query>\tspecify the JQL query manually\n")
     f.write("-h|--help\t\tthis message\n")
 # list ######
@@ -216,7 +220,7 @@ def op_mbox_usage(f):
 MODULE_NAME = "issue"
 MODULE_OPERATIONS = { "list": op_list, "mbox": op_mbox }
 MODULE_OPERATION_USAGE = { "list": op_list_usage, "mbox": op_mbox_usage }
-MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:a:s:S:j:V", "mbox": "crf:" }
+MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:A:s:S:j:Va", "mbox": "crf:" }
 MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql=", "save=", "saved="], "mbox": ["comment","all_fields","official"] }
 MODULE_OPERATION_REQUIRED_ARGS = { "list": 0, "mbox": 1 }
 
