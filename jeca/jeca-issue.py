@@ -217,12 +217,54 @@ def op_mbox_usage(f):
 
 # mbox ######
 
+# set #######
+def op_set(config, jirainst, opts, args):
+    issue = None
+    field = None
+    value = None
+    for option,v in opts:
+        if option == '-i':
+            issue = v
+        elif option == '-f':
+            field = v
+        elif option == '-v':
+            value = v
+
+    if issue is None or field is None or value is None:
+        op_set_usage(sys.stderr)
+        sys.exit(1)
+
+    i = jirainst.issue(issue)
+
+    if field == 'status':
+        transaction_id = None
+        for t in jirainst.transitions(i):
+            if t['name'] == value:
+                transition_id = t['id']
+        if transition_id is None:
+            sys.stderr.write("Transition to state %s not available\n" % value)
+            return 1
+
+        jirainst.transition_issue(issue = i, transition = transition_id)
+    else:
+        i.update(fields = { field: value })
+
+    return 0
+
+def op_set_usage(f):
+    f.write("jeca %s set <-i issue> <-f field> <-v value>[-h|--help]\n\n" % MODULE_NAME)
+    f.write("-i issue\t\tissue key/id\n")
+    f.write("-f field\t\tfield name or alias to be changed\n")
+    f.write("-v value\t\tnew field value\n")
+    f.write("-h|--help\t\tthis message\n")
+# set #######
+
 MODULE_NAME = "issue"
-MODULE_OPERATIONS = { "list": op_list, "mbox": op_mbox }
-MODULE_OPERATION_USAGE = { "list": op_list_usage, "mbox": op_mbox_usage }
-MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:A:s:S:j:Va", "mbox": "crf:" }
-MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql=", "save=", "saved="], "mbox": ["comment","all_fields","official"] }
-MODULE_OPERATION_REQUIRED_ARGS = { "list": 0, "mbox": 1 }
+MODULE_OPERATIONS = { "list": op_list, "mbox": op_mbox, "set": op_set }
+MODULE_OPERATION_USAGE = { "list": op_list_usage, "mbox": op_mbox_usage, "set": op_set_usage }
+MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:A:s:S:j:Va", "mbox": "crf:", "set": "i:f:v:" }
+MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql=", "save=", "saved="], "mbox": ["comment","all_fields","official"], "set": [] }
+MODULE_OPERATION_REQUIRED_ARGS = { "list": 0, "mbox": 1, "set": 0 }
 
 def list_operations(f):
     for op in MODULE_OPERATIONS:
