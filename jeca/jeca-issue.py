@@ -223,7 +223,7 @@ def op_set(config, jirainst, opts, args):
     field = None
     value = None
     for option,v in opts:
-        if option == '-i':
+        if option == '-j':
             issue = v
         elif option == '-f':
             field = v
@@ -252,8 +252,8 @@ def op_set(config, jirainst, opts, args):
     return 0
 
 def op_set_usage(f):
-    f.write("jeca %s set <-i issue> <-f field> <-v value>[-h|--help]\n\n" % MODULE_NAME)
-    f.write("-i issue\t\tissue key/id\n")
+    f.write("jeca %s set <-j issue> <-f field> <-v value>[-h|--help]\n\n" % MODULE_NAME)
+    f.write("-j issue\t\tissue key/id\n")
     f.write("-f field\t\tfield name or alias to be changed\n")
     f.write("-v value\t\tnew field value\n")
     f.write("-h|--help\t\tthis message\n")
@@ -262,7 +262,7 @@ def op_set_usage(f):
 MODULE_NAME = "issue"
 MODULE_OPERATIONS = { "list": op_list, "mbox": op_mbox, "set": op_set }
 MODULE_OPERATION_USAGE = { "list": op_list_usage, "mbox": op_mbox_usage, "set": op_set_usage }
-MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:A:s:S:j:Va", "mbox": "crf:", "set": "i:f:v:" }
+MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:A:s:S:j:Va", "mbox": "crf:", "set": "j:f:v:" }
 MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql=", "save=", "saved="], "mbox": ["comment","all_fields","official"], "set": [] }
 MODULE_OPERATION_REQUIRED_ARGS = { "list": 0, "mbox": 1, "set": 0 }
 
