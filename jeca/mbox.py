@@ -136,8 +136,12 @@ def mbox2issue(config, f, jirainst):
         handle_field_change(config, jirainst, key, e.get_payload())
     else:
         comment = jirainst.comment(issue = key, comment = comment_id)
-        private_type = comment.visibility.type
-        private_value = comment.visibility.value
+        try:
+            private_type = comment.visibility.type
+            private_value = comment.visibility.value
+        except:
+            private_type = None
+            private_value = None
 
         if private_type is not None:
             jirainst.add_comment(key, e.get_payload(), visibility = { "type": private_type, "value": private_value })
