@@ -259,12 +259,57 @@ def op_set_usage(f):
     f.write("-h|--help\t\tthis message\n")
 # set #######
 
+# links #####
+{'id': 1363125,
+ 'self': 'https://issues.redhat.com/rest/api/2/issue/RHEL-1848/remotelink/1363125',
+ 'globalId': 'EXTBZ-15450740-Red Hat Issue Tracker-RHELPLAN-162982',
+ 'application': {},
+ 'relationship': 'external trackers',
+ 'object': {
+        'url': 'https://issues.redhat.com/browse/RHELPLAN-162982',
+        'title': 'Red Hat Issue Tracker RHELPLAN-162982',
+        'icon': {},
+        'status': {'icon': {}}}}
+
+def op_links(config, jirainst, opts, args):
+    fields = [ 'url' ]
+    for option,v in opts:
+        if option == '-j':
+            issue = v
+        elif option == '-f':
+            fields = v.split(',')
+
+    if issue is None:
+        sys.stderr.write("-j must be used\n")
+        op_links_usage(sys.stderr)
+        return 1
+
+    for i in jirainst.remote_links(issue):
+        newline = True
+        for f in fields:
+            if not newline:
+                sys.stdout.write("\t")
+            newline = False
+            try:
+                sys.stdout.write(str(i.raw['object'][f]))
+            except:
+                sys.stdout.write('NotDefined')
+        sys.stdout.write("\n")
+
+    return 0
+def op_links_usage(f):
+    f.write("jeca %s links <-j issue/key> [-f fields] [-h|--help]\n\n" % MODULE_NAME)
+    f.write("-j <issue/key>\t\twhich issue's links should be shown\n")
+    f.write("-f <fields>\t\tcomma separated fields to be printed\n")
+
+# links #####
+
 MODULE_NAME = "issue"
-MODULE_OPERATIONS = { "list": op_list, "mbox": op_mbox, "set": op_set }
-MODULE_OPERATION_USAGE = { "list": op_list_usage, "mbox": op_mbox_usage, "set": op_set_usage }
-MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:A:s:S:j:Va", "mbox": "crf:", "set": "j:f:v:" }
-MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql=", "save=", "saved="], "mbox": ["comment","all_fields","official"], "set": [] }
-MODULE_OPERATION_REQUIRED_ARGS = { "list": 0, "mbox": 1, "set": 0 }
+MODULE_OPERATIONS = { "list": op_list, "mbox": op_mbox, "set": op_set, "links": op_links }
+MODULE_OPERATION_USAGE = { "list": op_list_usage, "mbox": op_mbox_usage, "set": op_set_usage, "links": op_links_usage }
+MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:A:s:S:j:Va", "mbox": "crf:", "set": "j:f:v:", "links": "j:f:" }
+MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql=", "save=", "saved="], "mbox": ["comment","all_fields","official"], "set": [], "links": [] }
+MODULE_OPERATION_REQUIRED_ARGS = { "list": 0, "mbox": 1, "set": 0, "links": 0 }
 
 def list_operations(f):
     for op in MODULE_OPERATIONS:
