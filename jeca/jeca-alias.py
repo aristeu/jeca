@@ -10,6 +10,7 @@ import getopt
 import sys
 import os
 from jira import JIRA
+from jeca.output import formatted_output
 
 # list ######
 def op_list(config, jirainst, opts, args):
@@ -17,8 +18,11 @@ def op_list(config, jirainst, opts, args):
     if "aliases" not in config:
         return 0
 
+    results = []
     for a in config['aliases']:
-        sys.stdout.write("%s\t%s\n" % (a, config['aliases'][a]))
+        results.append([a, config['aliases'][a]])
+
+    formatted_output(results)
 
     return 0
 
