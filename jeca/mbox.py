@@ -60,7 +60,7 @@ def issue2mbox(config, f, jirainst, key, only_with_aliases = False, only_officia
         f.write("# %s (%s)\n" % (field_db[field], field))
         # fields can point to various objects, so attempt to guess what the value is
         f.write("%s=" % find_alias_for(config, field))
-        handle_field(f, field, issue.raw['fields'][field])
+        f.write(handle_field(field, issue.raw['fields'][field]))
         f.write("\n\n")
 
     # now comments as emails replying to the "meta" email

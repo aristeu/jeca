@@ -15,40 +15,37 @@ def get_all_fields(jirainst):
 
     return result
 
-def _handle_field(f, field, item):
+def _handle_field(field, item):
     try:
-        f.write("%s" % item['emailAddress'])
-        return
+        return "%s" % item['emailAddress']
     except:
         pass
     try:
-        f.write("%s" % item['name'])
-        return
+        return "%s" % item['name']
     except:
         pass
     try:
-        f.write("%s" % item['value'])
-        return
+        return "%s" % item['value']
     except:
         pass
     try:
-        f.write("%s" % item[field])
-        return
+        return "%s" % item[field]
     except:
         pass
-    f.write("%s" % str(item))
+    return str(item)
 
-def handle_field(f, field, items):
+def handle_field(field, items):
     if items is None:
-        f.write("None")
-        return
+        return "None"
     if isinstance(items, list):
+        tmp = ""
         first = True
         for item in items:
             if first == False:
-                f.write(",")
+                tmp = tmp + ","
             first = False
-            _handle_field(f, field, item)
+            tmp = tmp + _handle_field(field, item)
+        return tmp
     else:
-        _handle_field(f, field, items)
+        return _handle_field(field, items)
 

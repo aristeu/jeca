@@ -16,6 +16,7 @@ from jira import JIRA
 from jeca.alias import alias_translate
 from jeca.mbox import issue2mbox, mbox2issue
 from jeca.field import get_all_fields, handle_field
+from jeca.output import formatted_output
 
 # jira.search_issues()
 # jql_str (str)					 The JQL search string.
@@ -135,26 +136,28 @@ def op_list(config, jirainst, opts, args):
         sys.stderr.write("Error executing search: %s\n" % str(ex))
         sys.exit(2)
 
+    results = []
     for issue in result:
-        newline = True
+        line = []
         for f in fields:
-            if not newline:
-                sys.stdout.write("\t")
-            newline = False
+            tmp = ""
             if verbose is True:
-                sys.stdout.write("%s:" % alias_translate(jirainst, f))
+                tmp = tmp + "%s:" % alias_translate(jirainst, f)
             # sigh
             if f == 'key':
-                sys.stdout.write(issue.key)
+                tmp = tmp + issue.key
             else:
                 # if the project doesn't have a certain field, it won't return
                 # anything. If the field exists but it's not set, it'll return
                 # "None"
                 try:
-                    handle_field(sys.stdout, f, issue.raw['fields'][f])
+                    tmp = tmp + handle_field(f, issue.raw['fields'][f])
                 except:
-                    sys.stdout.write('NotDefined')
-        sys.stdout.write("\n")
+                    tmp = tmp + "NotDefined"
+            line.append(tmp)
+        results.append(line)
+
+    formatted_output(results)
 
     return 0
 
