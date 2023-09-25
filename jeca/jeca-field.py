@@ -10,6 +10,7 @@ import getopt
 import sys
 import re
 from atlassian import Jira
+from jeca.output import formatted_output
 
 # list ######
 all_columns = ['id', 'name', 'custom', 'orderable', 'navigable', 'searchable', 'customId']
@@ -33,6 +34,7 @@ def op_list(config, jirainst, opts, args):
     if len(columns) == 0:
         columns = default_columns
 
+    results = []
     for f in jirainst.fields():
         if custom == False and f['custom'] == True:
             continue
@@ -45,8 +47,9 @@ def op_list(config, jirainst, opts, args):
                 line.append(str(f[c]))
             else:
                 line.append('')
-        if len(line) > 0:
-            sys.stdout.write("%s\n" % '\t'.join(line))
+        results.append(line)
+
+    formatted_output(results)
 
     return 0
 
