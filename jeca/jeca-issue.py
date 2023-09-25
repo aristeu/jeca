@@ -263,19 +263,9 @@ def op_set_usage(f):
 # set #######
 
 # links #####
-{'id': 1363125,
- 'self': 'https://issues.redhat.com/rest/api/2/issue/RHEL-1848/remotelink/1363125',
- 'globalId': 'EXTBZ-15450740-Red Hat Issue Tracker-RHELPLAN-162982',
- 'application': {},
- 'relationship': 'external trackers',
- 'object': {
-        'url': 'https://issues.redhat.com/browse/RHELPLAN-162982',
-        'title': 'Red Hat Issue Tracker RHELPLAN-162982',
-        'icon': {},
-        'status': {'icon': {}}}}
-
 def op_links(config, jirainst, opts, args):
     fields = [ 'url' ]
+    issue = None
     for option,v in opts:
         if option == '-j':
             issue = v
@@ -287,17 +277,19 @@ def op_links(config, jirainst, opts, args):
         op_links_usage(sys.stderr)
         return 1
 
+    results = []
     for i in jirainst.remote_links(issue):
-        newline = True
+        line = []
         for f in fields:
-            if not newline:
-                sys.stdout.write("\t")
-            newline = False
+            tmp = ""
             try:
-                sys.stdout.write(str(i.raw['object'][f]))
+                tmp = tmp + str(i.raw['object'][f])
             except:
-                sys.stdout.write('NotDefined')
-        sys.stdout.write("\n")
+                tmp = tmp + "NotDefined"
+            line.append(tmp)
+        results.append(line)
+
+    formatted_output(results)
 
     return 0
 def op_links_usage(f):
