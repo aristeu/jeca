@@ -31,7 +31,7 @@ from jeca.output import formatted_output
 # assignee = currentuser()
 
 # list ######
-default_filter = [ 'assignee = currentuser()', 'status not in ("Closed")' ]
+default_filter = [ 'assignee = currentuser()' ]
 default_fields = [ 'key', 'summary' ]
 def op_list(config, jirainst, opts, args):
     try:
@@ -76,7 +76,7 @@ def op_list(config, jirainst, opts, args):
         elif option == '-V':
             verbose = True
         elif option == '-a':
-            default_filter.remove('status not in ("Closed")')
+            hide_closed = False
         else:
             sys.stderr.write("Unknown option: %s\n" % option)
             usage(sys.stderr)
@@ -103,6 +103,9 @@ def op_list(config, jirainst, opts, args):
             except:
                 pass
             jql = " and ".join(search_filter)
+
+        if hide_closed == True:
+            jql = jql + " and status != closed"
 
     if len(saved_search) > 0:
         from jeca.config import CONFIG_FILE
