@@ -243,7 +243,7 @@ def op_set(config, jirainst, opts, args):
     i = jirainst.issue(issue)
 
     if field == 'status':
-        transaction_id = None
+        transition_id = None
         for t in jirainst.transitions(i):
             if t['name'] == value:
                 transition_id = t['id']
