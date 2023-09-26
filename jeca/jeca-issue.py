@@ -170,7 +170,7 @@ def op_list_usage(f):
     f.write("-S,--save <name>\tsave JQL as <name> along with --fields. Final filter based on options or --jql will be saved\n")
     f.write("-j <key>\t\tOnly list a specific issue\n")
     f.write("-V\t\tInclude field name in each column with the format \"field:value\"\n")
-    f.write("\a\t\tList issues even if they're closed\n")
+    f.write("-a\t\tList issues even if they're closed\n")
     f.write("--jql <JQL query>\tspecify the JQL query manually\n")
     f.write("-h|--help\t\tthis message\n")
 # list ######
