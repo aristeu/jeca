@@ -63,6 +63,18 @@ def issue2mbox(config, f, jirainst, key, only_with_aliases = False, only_officia
         f.write(handle_field(field, issue.raw['fields'][field]))
         f.write("\n\n")
 
+    # description as the first reply
+    created_time = parse(issue.fields.created).ctime()
+    f.write("From %s@jeca %s\n" % (str(issue.fields.creator.key), created_time))
+    f.write("Message-ID: <1-%s@jeca>\n" % key)
+    f.write("In-Reply-To: <0-%s@jeca>\n" % key)
+    f.write("Date: %s\n" % created_time)
+    f.write("From: %s <%s@jeca>\n" % (issue.fields.creator.displayName, issue.fields.creator.key))
+    f.write("To: you <jeca@jeca>\n")
+    f.write("Subject: Description\n\n")
+    f.write(issue.raw['fields']['description'])
+    f.write("\n\n")
+
     # now comments as emails replying to the "meta" email
     for c in jirainst.comments(key):
         updated_datetime = parse(c.updated).ctime()
@@ -135,13 +147,15 @@ def mbox2issue(config, f, jirainst):
     if comment_id == "0":
         handle_field_change(config, jirainst, key, e.get_payload())
     else:
-        comment = jirainst.comment(issue = key, comment = comment_id)
-        try:
-            private_type = comment.visibility.type
-            private_value = comment.visibility.value
-        except:
-            private_type = None
-            private_value = None
+        private_type = None
+
+        if comment_id != "1":
+            comment = jirainst.comment(issue = key, comment = comment_id)
+            try:
+                private_type = comment.visibility.type
+                private_value = comment.visibility.value
+            except:
+                private_value = None
 
         if private_type is not None:
             jirainst.add_comment(key, e.get_payload(), visibility = { "type": private_type, "value": private_value })
