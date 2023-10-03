@@ -85,9 +85,10 @@ def op_list(config, jirainst, opts, args):
     if len(fields) == 0:
         # first look if we have a configuration for this
         try:
-            fields = config['issue-list']['default_fields'].split(',')
+            for f in config['issue-list']['default_fields'].split(','):
+                fields.append(alias_translate(config, f))
         except:
-            pass
+            # pass
             fields = default_fields
 
     if len(jql) == 0:
