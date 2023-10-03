@@ -6,7 +6,33 @@
 # option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
 # the full text of the license.
 
+import sys
+import os
+import glob
 from jira import JIRA
+
+# dictionary of custom field handlers
+custom_handlers = {}
+
+def new_custom_handler(field, handler):
+    if field in custom_handlers:
+        sys.stderr.write("Handler for field %s already exists\n" % field)
+        return 1
+    custom_handlers[field] = handler
+    return 0
+
+def init_all_custom_handlers(config):
+    if "misc" not in config or "custom_handlers_path" not in config["misc"]:
+        sys.stdout.write("No configuration\n")
+        return 0
+
+    handlers = config["misc"]["custom_handlers_path"]
+    sys.path.append(handlers)
+    for mod in glob.glob("%s/*.py" % handlers):
+        module = __import__(os.path.basename(mod).replace(".py", ''))
+        module.init()
+
+    return 0
 
 def get_all_fields(jirainst):
     result = []
@@ -16,6 +42,8 @@ def get_all_fields(jirainst):
     return result
 
 def _handle_field(field, item):
+    if field in custom_handlers:
+        return custom_handlers[field](field, item)
     try:
         return "%s" % item['emailAddress']
     except:

@@ -1,0 +1,41 @@
+[jira]
+url = https://issues.mycompany.com/
+user = user
+token = BLAHBLAHBLAHBLAHBLAHBLAH
+default_project = MYPRODUCT
+
+[misc]
+custom_handlers_path = /home/user/.config/jeca/handlers
+
+[issue-list]
+default_fields = key,fixVersions,status,summary
+
+[aliases]
+keywords = customfield_12323341
+target_release = customfield_12311240
+whiteboard = customfield_12322040
+subcomponent = customfield_12316844
+quack = customfield_12316745
+ready = customfield_12316542
+blocked = customfield_12316543
+upstream_target = customfield_12317343
+upstream_kernel_target = customfield_12317347
+dev_approval = customfield_12317260
+needinfo_from = customfield_12311840
+fixed_in = customfield_12317363
+needsinfo = customfield_12317246
+itm_numeric = customfield_12321440
+security_sensitive = customfield_12311640
+acks_check = customfield_12317366
+sprint = customfield_12310940
+dtm = customfield_12322148
+bz = customfield_12316840
+
+[saved_search_core-kernel]
+jql = project = MYPRODUCT and assignee = "somelist@mycompany.com" and status != closed
+fields = key,fixVersions,status,summary
+
+[saved_search_mm-maint]
+jql = project = MYPRODUCT and assignee = "otherlist@mycompany.com" and status != closed
+fields = key,fixVersions,status,summary
+

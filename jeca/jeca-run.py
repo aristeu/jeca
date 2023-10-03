@@ -15,6 +15,7 @@ import importlib
 import configparser
 import base64
 from jira import JIRA
+from jeca.field import init_all_custom_handlers
 
 def print_objects(arg, f):
     f.write("List of objects:\n")
@@ -79,6 +80,9 @@ def main(cmd, argv):
     if len(args) < 1:
         print_objects(cmd, sys.stdout)
         return 0
+
+    if init_all_custom_handlers(config) != 0:
+        return 1
 
     mod = importlib.import_module('%s.%s-%s' % (basename, basename, args[0]))
     return mod.jeca_module_main(config, jirainst, args)
