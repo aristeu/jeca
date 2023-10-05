@@ -41,9 +41,17 @@ def get_all_fields(jirainst):
 
     return result
 
-def _handle_field(field, item):
+def watchers(jirainst, key, issue):
+    results = []
+    for w in jirainst.watchers(key).watchers:
+        results.append(w.raw['name'])
+    return ','.join(results)
+
+def _handle_field(jirainst, key, field, item):
     if field in custom_handlers:
         return custom_handlers[field](field, item)
+    if field == 'watchers':
+        return watchers(jirainst, key, item)
     try:
         return "%s" % item['emailAddress']
     except:
@@ -62,7 +70,7 @@ def _handle_field(field, item):
         pass
     return str(item)
 
-def handle_field(field, items):
+def handle_field(jirainst, key, field, items):
     if items is None:
         return "None"
     if isinstance(items, list):
@@ -72,8 +80,8 @@ def handle_field(field, items):
             if first == False:
                 tmp = tmp + ","
             first = False
-            tmp = tmp + _handle_field(field, item)
+            tmp = tmp + _handle_field(jirainst, key, field, item)
         return tmp
     else:
-        return _handle_field(field, items)
+        return _handle_field(jirainst, key, field, items)
 
