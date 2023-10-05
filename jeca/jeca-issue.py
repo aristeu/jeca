@@ -253,6 +253,13 @@ def op_set(config, jirainst, opts, args):
             return 1
 
         jirainst.transition_issue(issue = i, transition = transition_id)
+    elif field == 'watchers':
+        # FIXME yes, we probably should do this better allowing to remove watchers
+        for w in value.split(','):
+            try:
+                jirainst.add_watcher(issue, w)
+            except Exception as ex:
+                sys.stderr.write("Unable to add watcher %s (%s)\n" % (w, str(ex)))
     else:
         i.update(fields = { field: value })
 
