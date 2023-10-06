@@ -260,6 +260,7 @@ def op_set(config, jirainst, opts, args):
                 jirainst.add_watcher(issue, w)
             except Exception as ex:
                 sys.stderr.write("Unable to add watcher %s (%s)\n" % (w, str(ex)))
+                pass
     else:
         i.update(fields = { field: value })
 
