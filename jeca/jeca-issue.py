@@ -261,6 +261,12 @@ def op_set(config, jirainst, opts, args):
             except Exception as ex:
                 sys.stderr.write("Unable to add watcher %s (%s)\n" % (w, str(ex)))
                 pass
+    elif field == "fixVersions":
+        if len(v) == 0:
+            i.update(fields = { 'fixVersions': [ ] })
+            return
+        for v in value.split(','):
+            i.update(fields = { 'fixVersions': [ { 'name': v } ] })
     else:
         i.update(fields = { field: value })
 
