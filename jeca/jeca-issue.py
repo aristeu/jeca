@@ -123,7 +123,9 @@ def op_list(config, jirainst, opts, args):
 
         try:
             jql = config[section]['jql']
-            fields = config[section]['fields'].split(',')
+            fields = []
+            for f in config[section]['fields'].split(','):
+                fields.append(alias_translate(config, f))
         except:
             sys.stderr.write("Unable to find saved search %s in the configuration\n" % saved_search)
             sys.exit(2)
