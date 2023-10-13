@@ -269,6 +269,8 @@ def op_set(config, jirainst, opts, args):
             return
         for v in value.split(','):
             i.update(fields = { 'fixVersions': [ { 'name': v } ] })
+    elif field == "assignee":
+        jirainst.assign_issue(issue, value)
     else:
         i.update(fields = { field: value })
 
