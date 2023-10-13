@@ -235,7 +235,7 @@ def op_set(config, jirainst, opts, args):
         if option == '-j':
             issue = v
         elif option == '-f':
-            field = v
+            field = alias_translate(config, v)
         elif option == '-v':
             value = v
 
