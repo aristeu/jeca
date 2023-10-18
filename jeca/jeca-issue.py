@@ -272,7 +272,7 @@ def op_set(config, jirainst, opts, args):
     elif field == "assignee":
         jirainst.assign_issue(issue, value)
     else:
-        i.update(fields = { field: value })
+        i.update(fields = { field: { "value": value } })
 
     return 0
 
