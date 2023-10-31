@@ -73,6 +73,7 @@ def op_list(config, jirainst, opts, args):
             save = True
         elif option == '-j':
             search_filter.append("key = \"%s\"" % value)
+            hide_closed = False
         elif option == '-V':
             verbose = True
         elif option == '-a':
