@@ -264,12 +264,12 @@ def op_set(config, jirainst, opts, args):
             except Exception as ex:
                 sys.stderr.write("Unable to add watcher %s (%s)\n" % (w, str(ex)))
                 pass
-    elif field == "fixVersions":
+    elif field == "fixVersions" or field == 'versions':
         if len(v) == 0:
-            i.update(fields = { 'fixVersions': [ ] })
+            i.update(fields = { field: [ ] })
             return
         for v in value.split(','):
-            i.update(fields = { 'fixVersions': [ { 'name': v } ] })
+            i.update(fields = { field: [ { 'name': v } ] })
     elif field == "assignee":
         jirainst.assign_issue(issue, value)
     else:
