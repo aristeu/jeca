@@ -72,7 +72,7 @@ def issue2mbox(config, f, jirainst, key, only_with_aliases = False, only_officia
     f.write("From: %s <%s@jeca>\n" % (issue.fields.creator.displayName, issue.fields.creator.key))
     f.write("To: you <jeca@jeca>\n")
     f.write("Subject: Description\n\n")
-    f.write(issue.raw['fields']['description'])
+    f.write(str(issue.raw['fields']['description']))
     f.write("\n\n")
 
     # now comments as emails replying to the "meta" email
