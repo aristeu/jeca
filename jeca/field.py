@@ -9,7 +9,9 @@
 import sys
 import os
 import glob
+import configparser
 from jira import JIRA
+from jeca.config import FIELD_CACHE
 
 # dictionary of custom field handlers
 custom_handlers = {}
@@ -85,3 +87,51 @@ def handle_field(jirainst, key, field, items):
     else:
         return _handle_field(jirainst, key, field, items)
 
+def field_cache(config, jirainst, issue):
+    meta = jirainst.editmeta(issue)
+    cache = configparser.ConfigParser()
+    cache.read(os.path.expanduser(FIELD_CACHE))
+
+    for f_name in meta['fields']:
+        f = meta['fields'][f_name]
+        fieldid = f['fieldId']
+        config_name = "field_%s" % fieldid
+        cache[config_name] = {}
+        cache[config_name]['required'] = str(f['required'])
+        cache[config_name]['type'] = field_type = str(f['schema']['type'])
+        if field_type is 'array':
+            cache[config_name]['items'] = items = f['schema']['items']
+        allowed = []
+        if 'allowedValues' in f:
+            for a in f['allowedValues']:
+                # FIXME - yep, we could handle properly every field, but
+                # this is a lot simpler for now
+                if 'name' in a:
+                    allowed.append(a['name'])
+                elif 'value' in a:
+                    allowed.append(a['value'])
+                else:
+                    print("Unknown field type: [%s]" % str(a))
+                    sys.exit(1)
+        cache[config_name]['allowed'] = ','.join(allowed)
+
+    f = open(os.path.expanduser(FIELD_CACHE), 'w')
+    cache.write(f)
+
+def field_cache_get(config, jirainst, name):
+    cache = configparser.ConfigParser()
+    cache.read(os.path.expanduser(FIELD_CACHE))
+    field_name = "field_%s" % name
+
+    if field_name not in cache:
+        return None
+
+    rc = cache[field_name]
+    return rc
+
+def field_cache_get_allowed(config, jirainst, name):
+    cache = field_cache_get(config, jirainst, name)
+    if cache is None:
+        return None
+
+    return cache['allowed']

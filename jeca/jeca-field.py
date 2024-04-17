@@ -9,8 +9,11 @@
 import getopt
 import sys
 import re
+import configparser
 from atlassian import Jira
 from jeca.output import formatted_output
+from jeca.field import field_cache, field_cache_get_allowed
+from jeca.alias import alias_translate
 
 # list ######
 all_columns = ['id', 'name', 'custom', 'orderable', 'navigable', 'searchable', 'customId']
@@ -62,12 +65,48 @@ def op_list_usage(f):
     f.write("Available fields: %s\n" % ', '.join(all_columns))
 # list ######
 
+# cache #####
+def op_cache(config, jirainst, opts, args):
+    if len(args) == 0:
+        op_cache_usage(sys.stderr)
+        return 1
+
+    issue = args[0]
+    return field_cache(config, jirainst, issue)
+
+def op_cache_usage(f):
+    f.write("jeca field cache [<issue>] [-h|--help]\n\n")
+    f.write("<issue> is used as reference because fields are reported per issue\n")
+
+# cache #####
+
+# allowed ###
+def op_allowed(config, jirainst, opts, args):
+    if len(args) == 0:
+        op_allowed_usage(sys.stderr)
+        return 1
+
+    field = alias_translate(config, args[0])
+    allowed = field_cache_get_allowed(config, jirainst, field)
+    if allowed is None:
+        sys.stdout.write("Unable to find field in the cache. Running 'jeca field cache' is recommended\n")
+        return 1
+    if len(allowed) == 0:
+        return 0
+    print(str(allowed))
+    return 0
+
+def op_allowed_usage(f):
+    f.write("jeca field allowed [<field>] [-h|--help]\n\n")
+    f.write("<field> might be an alias or field name\n")
+# allowed ###
+
 MODULE_NAME = "field"
-MODULE_OPERATIONS = { "list": op_list }
-MODULE_OPERATION_USAGE = { "list": op_list_usage }
-MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:" }
-MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "nocustom", "nodefault"] }
-MODULE_OPERATION_REQUIRED_ARGS = { "list": 0 }
+MODULE_OPERATIONS = { "list": op_list, "cache": op_cache, "allowed": op_allowed }
+MODULE_OPERATION_USAGE = { "list": op_list_usage, "cache": op_cache_usage, "allowed": op_allowed_usage }
+MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:", "cache": "", "allowed": "" }
+MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "nocustom", "nodefault"], "cache": [], "allowed": [] }
+MODULE_OPERATION_REQUIRED_ARGS = { "list": 0, "cache": 1, "allowed": 1 }
 
 def list_operations(f):
     for op in MODULE_OPERATIONS:
