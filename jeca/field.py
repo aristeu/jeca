@@ -99,8 +99,10 @@ def field_cache(config, jirainst, issue):
         cache[config_name] = {}
         cache[config_name]['required'] = str(f['required'])
         cache[config_name]['type'] = field_type = str(f['schema']['type'])
-        if field_type is 'array':
+        if 'items' in f['schema']:
             cache[config_name]['items'] = items = f['schema']['items']
+        if 'custom' in f['schema']:
+            cache[config_name]['custom'] = f['schema']['custom']
         allowed = []
         if 'allowedValues' in f:
             for a in f['allowedValues']:
@@ -113,7 +115,7 @@ def field_cache(config, jirainst, issue):
                 else:
                     print("Unknown field type: [%s]" % str(a))
                     sys.exit(1)
-        cache[config_name]['allowed'] = ','.join(allowed)
+            cache[config_name]['allowed'] = ','.join(allowed)
 
     f = open(os.path.expanduser(FIELD_CACHE), 'w')
     cache.write(f)
