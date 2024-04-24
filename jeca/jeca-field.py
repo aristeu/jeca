@@ -93,7 +93,8 @@ def op_allowed(config, jirainst, opts, args):
         return 1
     if len(allowed) == 0:
         return 0
-    print(str(allowed))
+    for i in str(allowed).split(','):
+        print(i)
     return 0
 
 def op_allowed_usage(f):
