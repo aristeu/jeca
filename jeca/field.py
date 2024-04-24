@@ -149,10 +149,19 @@ def get_field_token(cache):
     if cache['type'] == 'option':
         return 'value'
 
-    if cache['type'] == 'date':
+    if cache['type'] == 'date' or cache['type'] == 'number':
         return 'direct'
 
     return 'name'
+
+def convert_field(cache, value):
+    if 'custom' in cache:
+        if cache['custom'] == "com.atlassian.jira.plugin.system.customfieldtypes:float":
+            return float(value)
+    if cache['type'] == 'number':
+        return int(value)
+
+    return value
 
 def field_handle_set(config, jirainst, issue, name, value):
     cache = field_cache_get(config, jirainst, name)
@@ -160,6 +169,7 @@ def field_handle_set(config, jirainst, issue, name, value):
         sys.stderr.write("Unable to find '%s' in cache, please make sure the field exists or run jeca field cache\n" % name)
         return 1
     token = get_field_token(cache)
+    value = convert_field(cache, value)
     final_value = {}
     if cache['type'] == 'array':
         output = []
