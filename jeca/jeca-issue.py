@@ -15,7 +15,7 @@ import tempfile
 from jira import JIRA
 from jeca.alias import alias_translate
 from jeca.mbox import issue2mbox, mbox2issue
-from jeca.field import get_all_fields, handle_field
+from jeca.field import get_all_fields, handle_field, field_cache_get, field_handle_set
 from jeca.output import formatted_output
 
 # jira.search_issues()
@@ -256,7 +256,9 @@ def op_set(config, jirainst, opts, args):
             return 1
 
         jirainst.transition_issue(issue = i, transition = transition_id)
-    elif field == 'watchers':
+
+        return 0
+    if field == 'watchers':
         # FIXME yes, we probably should do this better allowing to remove watchers
         for w in value.split(','):
             try:
@@ -264,26 +266,9 @@ def op_set(config, jirainst, opts, args):
             except Exception as ex:
                 sys.stderr.write("Unable to add watcher %s (%s)\n" % (w, str(ex)))
                 pass
-    elif field == "fixVersions" or field == 'versions':
-        if len(v) == 0:
-            i.update(fields = { field: [ ] })
-            return
-        for v in value.split(','):
-            i.update(fields = { field: [ { 'name': v } ] })
-    elif field == "assignee":
-        jirainst.assign_issue(issue, value)
-    else:
-        # we can't know what kind of field it is, so guessing it is
-        try:
-            value = int(value)
-            i.update(fields = { field: value })
-            return 0
-        except:
-            pass
+        return 0
 
-        i.update(fields = { field: { "value": value } })
-
-    return 0
+    return field_handle_set(config, jirainst, i, field, value)
 
 def op_set_usage(f):
     f.write("jeca %s set <-j issue> <-f field> <-v value>[-h|--help]\n\n" % MODULE_NAME)
