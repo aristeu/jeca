@@ -136,6 +136,9 @@ def field_cache_get_allowed(config, jirainst, name):
     if cache is None:
         return None
 
+    if 'allowed' not in cache:
+        return []
+
     return cache['allowed']
 
 def get_field_token(cache):
@@ -154,7 +157,7 @@ def get_field_token(cache):
 def field_handle_set(config, jirainst, issue, name, value):
     cache = field_cache_get(config, jirainst, name)
     if cache is None:
-        sys.stderr.write("Unable to find '%s' in cache, please run jeca field cache\n" % name)
+        sys.stderr.write("Unable to find '%s' in cache, please make sure the field exists or run jeca field cache\n" % name)
         return 1
     token = get_field_token(cache)
     final_value = {}
