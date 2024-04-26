@@ -49,8 +49,10 @@ def op_list(config, jirainst, opts, args):
     all_fields = False
     verbose = False
     hide_closed = True
+    specified_fields = False
     for option,value in opts:
         if option == '--fields' or option == '-f':
+            specified_fields = True
             if value == "all":
                 # so, sigh, if you ask too many fields, jira poops its pants
                 for i in get_all_fields(jirainst):
@@ -124,9 +126,10 @@ def op_list(config, jirainst, opts, args):
 
         try:
             jql = config[section]['jql']
-            fields = []
-            for f in config[section]['fields'].split(','):
-                fields.append(alias_translate(config, f))
+            if specified_fields == False:
+                fields = []
+                for f in config[section]['fields'].split(','):
+                    fields.append(alias_translate(config, f))
         except:
             sys.stderr.write("Unable to find saved search %s in the configuration\n" % saved_search)
             sys.exit(2)
