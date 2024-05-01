@@ -99,6 +99,7 @@ def field_cache(config, jirainst, issue):
         cache[config_name] = {}
         cache[config_name]['required'] = str(f['required'])
         cache[config_name]['type'] = field_type = str(f['schema']['type'])
+        cache[config_name]['name'] = f['name']
         if 'items' in f['schema']:
             cache[config_name]['items'] = items = f['schema']['items']
         if 'custom' in f['schema']:
