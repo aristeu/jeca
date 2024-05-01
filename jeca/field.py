@@ -190,3 +190,27 @@ def field_handle_set(config, jirainst, issue, name, value):
     issue.update(fields = final_value)
 
     return 0
+
+def field_translate_jql(config, jirainst, jql):
+    try:
+        cache = configparser.ConfigParser()
+        cache.read(os.path.expanduser(FIELD_CACHE))
+    except:
+        sys.stderr.write("Unable to open field cache. Please run jeca field cache\n")
+        sys.exit(1)
+
+    # first process aliases
+    jql_split = jql.replace('=', ' ').split()
+    for a in config['aliases']:
+        if a in jql_split:
+            jql = jql.replace(a, config['aliases'][a])
+
+    # then process everything once you have the fields' real names
+    jql_split = jql.replace('=', ' ').split()
+    for field_name in cache:
+        n = field_name.replace('field_', '', 1)
+        if n in jql_split:
+            # need the quotes
+            jql = jql.replace(n, "'%s'" % cache[field_name]['name'])
+
+    return jql

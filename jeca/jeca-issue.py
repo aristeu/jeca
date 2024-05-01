@@ -15,7 +15,7 @@ import tempfile
 from jira import JIRA
 from jeca.alias import alias_translate
 from jeca.mbox import issue2mbox, mbox2issue
-from jeca.field import get_all_fields, handle_field, field_cache_get, field_handle_set
+from jeca.field import get_all_fields, handle_field, field_cache_get, field_handle_set, field_translate_jql
 from jeca.output import formatted_output
 
 # jira.search_issues()
@@ -50,6 +50,7 @@ def op_list(config, jirainst, opts, args):
     verbose = False
     hide_closed = True
     specified_fields = False
+    translate_jql = True
     for option,value in opts:
         if option == '--fields' or option == '-f':
             specified_fields = True
@@ -80,10 +81,15 @@ def op_list(config, jirainst, opts, args):
             verbose = True
         elif option == '-a':
             hide_closed = False
+        elif option == '--raw-jql':
+            translate_jql = False
         else:
             sys.stderr.write("Unknown option: %s\n" % option)
             usage(sys.stderr)
             sys.exit(2)
+
+    if len(jql) > 0 and translate_jql:
+        jql = field_translate_jql(config, jirainst, jql)
 
     if len(fields) == 0:
         # first look if we have a configuration for this
@@ -182,6 +188,7 @@ def op_list_usage(f):
     f.write("-V\t\tInclude field name in each column with the format \"field:value\"\n")
     f.write("-a\t\tList issues even if they're closed\n")
     f.write("--jql <JQL query>\tspecify the JQL query manually\n")
+    f.write("--raw-jql\t\tDisable alias and field name translator. JQL only accepts the descriptive name as filter (e.g.: 'Affected Version/s' instead of 'versions')\n")
     f.write("-h|--help\t\tthis message\n")
 # list ######
 
@@ -322,7 +329,7 @@ MODULE_NAME = "issue"
 MODULE_OPERATIONS = { "list": op_list, "mbox": op_mbox, "set": op_set, "links": op_links }
 MODULE_OPERATION_USAGE = { "list": op_list_usage, "mbox": op_mbox_usage, "set": op_set_usage, "links": op_links_usage }
 MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:A:s:S:j:Va", "mbox": "crf:", "set": "j:f:v:", "links": "j:f:" }
-MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql=", "save=", "saved="], "mbox": ["comment","all_fields","official"], "set": [], "links": [] }
+MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql=", "save=", "saved=", "raw-jql"], "mbox": ["comment","all_fields","official"], "set": [], "links": [] }
 MODULE_OPERATION_REQUIRED_ARGS = { "list": 0, "mbox": 1, "set": 0, "links": 0 }
 
 def list_operations(f):
