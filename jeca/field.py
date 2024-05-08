@@ -177,6 +177,8 @@ def field_handle_set(config, jirainst, issue, name, value):
         value = value.split(',')
 
         for item in value:
+            if len(item.replace(' ', '')) == 0:
+                continue
             data = {}
             data[token] = item
             output.append(data)
