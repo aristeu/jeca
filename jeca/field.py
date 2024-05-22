@@ -117,6 +117,17 @@ def field_cache(config, jirainst, issue):
             for a in f['allowedValues']:
                 allowed.append(a[token])
             cache[config_name]['allowed'] = ','.join(allowed)
+    # le sigh
+    resolutions = []
+    for i in jirainst.resolutions():
+        resolutions.append(str(i))
+
+    config_name = "field_resolution"
+    cache[config_name] = {}
+    cache[config_name]['required'] = "False"
+    cache[config_name]['type'] = "option"
+    cache[config_name]['name'] = "Resolution"
+    cache[config_name]['allowed'] = ','.join(resolutions)
 
     f = open(os.path.expanduser(FIELD_CACHE), 'w')
     cache.write(f)
