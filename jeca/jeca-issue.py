@@ -159,8 +159,9 @@ def op_list(config, jirainst, opts, args):
             tmp = ""
             if verbose is True:
                 tmp = tmp + "%s:" % alias_translate(jirainst, f)
-            # sigh
-            if f == 'key':
+            # XXX 'key' doesn't exist in the issue.raw[], so we need to do it manually
+            # XXX in newer versions of the python library for some reason 'key' gets replaced by 'issuekey'
+            if f == 'key' or f == 'issuekey':
                 tmp = tmp + issue.key
             else:
                 # if the project doesn't have a certain field, it won't return
