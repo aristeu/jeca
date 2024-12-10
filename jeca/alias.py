@@ -18,6 +18,6 @@ def alias_translate(config, field):
 def find_alias_for(config, field):
     if 'aliases' in config:
         for i in config['aliases']:
-            if config['aliases'][i] == field.lower:
+            if config['aliases'][i] == field.lower():
                 return i
     return field
