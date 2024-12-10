@@ -63,14 +63,14 @@ def _handle_field(jirainst, key, field, item):
     except:
         pass
     try:
-        return "%s" % item['value']
+        return "%s" % item['value'].replace('\r', '')
     except:
         pass
     try:
-        return "%s" % item[field]
+        return "%s" % item[field].replace('\r', '')
     except:
         pass
-    return str(item)
+    return str(item).replace('\r', '')
 
 def handle_field(jirainst, key, field, items):
     if items is None:
