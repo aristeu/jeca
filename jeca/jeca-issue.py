@@ -168,7 +168,7 @@ def op_list(config, jirainst, opts, args):
                 # anything. If the field exists but it's not set, it'll return
                 # "None"
                 try:
-                    tmp = tmp + handle_field(jirainst, issue.key, f, issue.raw['fields'][f])
+                    tmp = tmp + handle_field(jirainst, issue.key, f, issue.raw['fields'][f].replace('\r', ''))
                 except:
                     tmp = tmp + "NotDefined"
             line.append(tmp)
