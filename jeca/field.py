@@ -154,14 +154,14 @@ def field_cache_get_allowed(config, jirainst, name):
     return cache['allowed']
 
 def get_field_token(cache):
-    # if the field has allowed values, we can quickly determine if it's 'value' or 'name
+    # if the field has allowed values, we can quickly determine if it's 'value' or 'name'
     if 'allowed_token' in cache:
         return cache['allowed_token']
 
     if cache['type'] == 'option':
         return 'value'
 
-    if cache['type'] == 'date' or cache['type'] == 'number':
+    if cache['type'] == 'date' or cache['type'] == 'number' or cache['type'] == 'string':
         return 'direct'
 
     return 'name'
