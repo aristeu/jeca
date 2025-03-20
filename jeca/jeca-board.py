@@ -15,6 +15,7 @@ available_fields = ['id', 'name', 'type' ]
 default_fields = [ 'name' ]
 def op_list(config, jirainst, opts, args):
     fields = default_fields
+    argv = {}
     for option,value in opts:
         if option == '--fields' or option == '-f':
             for f in value.split(','):
@@ -22,6 +23,8 @@ def op_list(config, jirainst, opts, args):
                     sys.stderr.write("Field %s not available, available fields: %s\n" % (f, ','.join(available_fields)))
                     sys.exit(1)
                 fields = value.split(',')
+        elif option == '--project' or option == '-p':
+            argv['projectKeyOrID'] = value
         else:
             sys.stderr.write("Unknown option: %s\n" % option)
             usage(sys.stderr)
@@ -29,8 +32,10 @@ def op_list(config, jirainst, opts, args):
 
     count = 0;
     output = []
+    argv['maxResults'] = 50
     while True:
-        boards = jirainst.boards(startAt=count, maxResults=50)
+        argv['startAt'] = count
+        boards = jirainst.boards(**argv)
         for b in boards:
             line = []
             for f in fields:
@@ -52,8 +57,8 @@ def op_list_usage(f):
 MODULE_NAME = "board"
 MODULE_OPERATIONS = { "list": op_list }
 MODULE_OPERATION_USAGE = { "list": op_list_usage }
-MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:" }
-MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields="] }
+MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:" }
+MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=","project="] }
 MODULE_OPERATION_REQUIRED_ARGS = { "list": 0 }
 
 def list_operations(f):
