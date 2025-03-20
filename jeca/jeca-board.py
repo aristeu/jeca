@@ -28,6 +28,7 @@ def op_list(config, jirainst, opts, args):
             sys.exit(2)
 
     count = 0;
+    output = []
     while True:
         boards = jirainst.boards(startAt=count, maxResults=50)
         for b in boards:
@@ -35,9 +36,11 @@ def op_list(config, jirainst, opts, args):
             for f in fields:
                 line.append(str(b.raw[f]))
             count = count + 50
-            print('\t'.join(line))
+            output.append('\t'.join(line))
         if len(boards) <  50:
             break
+    if len(output) > 0:
+        print('\n'.join(output))
 
     return 0
 
