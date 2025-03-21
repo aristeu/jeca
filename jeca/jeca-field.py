@@ -16,7 +16,7 @@ from jeca.field import field_cache, field_cache_get_allowed
 from jeca.alias import alias_translate
 
 # list ######
-all_columns = ['id', 'name', 'custom', 'orderable', 'navigable', 'searchable', 'customId']
+all_columns = ['id', 'name', 'custom', 'orderable', 'navigable', 'searchable', 'customId', 'clauseNames', 'schema']
 default_columns = [ 'id', 'name' ]
 def op_list(config, jirainst, opts, args):
     columns= []
