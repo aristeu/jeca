@@ -12,8 +12,8 @@ from jira import JIRA
 from jeca.output import formatted_output
 
 # list ######
+available_fields = [ 'id', 'name', 'description', 'owner', 'jql', 'viewUrl', 'favourite', 'sharePermissions', 'editable', 'sharedUsers', 'subscriptions' ]
 default_fields = ['name']
-
 def op_list(config, jirainst, opts, args):
     fields = default_fields
     if 'filter' in config and 'default_fields' in config['filter']:
@@ -21,7 +21,14 @@ def op_list(config, jirainst, opts, args):
 
     for option,value in opts:
         if option == '--fields' or option == '-f':
-            fields = value.split(',')
+            if value == 'all':
+                fields = available_fields
+            else:
+                for f in value.split(','):
+                    if f not in available_fields:
+                        sys.stderr.write("Field %s not available (%s)\n" % (f, ','.join(available_fields)))
+                        sys.exit(1)
+                    fields = value.split(',')
 
     results = []
     for f in jirainst.favourite_filters():

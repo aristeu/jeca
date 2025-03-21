@@ -19,23 +19,23 @@ from jeca.alias import alias_translate
 all_columns = ['id', 'name', 'custom', 'orderable', 'navigable', 'searchable', 'customId', 'clauseNames', 'schema']
 default_columns = [ 'id', 'name' ]
 def op_list(config, jirainst, opts, args):
-    columns= []
+    columns = default_columns
     default = True
     custom = True
     for (opt, arg) in opts:
         if opt == '-f' or opt == '--fields':
-            columns = arg.split(',')
-            for c in columns:
-                if c not in all_columns:
-                    sys.stderr.write("Invalid field: %s\n" % c)
-                    sys.exit(1)
+            if arg == 'all':
+                columns = all_columns
+            else:
+                columns = arg.split(',')
+                for c in columns:
+                    if c not in all_columns:
+                        sys.stderr.write("Invalid field: %s\n" % c)
+                        sys.exit(1)
         elif opt == '--nocustom':
             custom = False
         elif opt == '--nodefault':
             default = False
-
-    if len(columns) == 0:
-        columns = default_columns
 
     results = []
     for f in jirainst.fields():

@@ -18,11 +18,14 @@ def op_list(config, jirainst, opts, args):
     argv = {}
     for option,value in opts:
         if option == '--fields' or option == '-f':
-            for f in value.split(','):
-                if f not in available_fields:
-                    sys.stderr.write("Field %s not available, available fields: %s\n" % (f, ','.join(available_fields)))
-                    sys.exit(1)
-                fields = value.split(',')
+            if value == 'all':
+                fields = available_fields
+            else:
+                for f in value.split(','):
+                    if f not in available_fields:
+                        sys.stderr.write("Field %s not available, available fields: %s\n" % (f, ','.join(available_fields)))
+                        sys.exit(1)
+                    fields = value.split(',')
         elif option == '--project' or option == '-p':
             argv['projectKeyOrID'] = value
         else:

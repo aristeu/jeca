@@ -17,11 +17,14 @@ def op_list(config, jirainst, opts, args):
     fields = default_fields
     for option,value in opts:
         if option == '--fields' or option == '-f':
-           fields = value.split(',')
-           for f in fields:
-               if f not in available_fields:
-                   sys.stderr.write("Field %s not available (%s)\n", (f, ','.join(available_fields)))
-                   sys.exit(1)
+            if value == 'all':
+                fields = available_fields
+            else:
+                fields = value.split(',')
+                for f in fields:
+                    if f not in available_fields:
+                        sys.stderr.write("Field %s not available (%s)\n", (f, ','.join(available_fields)))
+                        sys.exit(1)
         else:
             sys.stderr.write("Unknown option: %s\n" % option)
             usage(sys.stderr)
