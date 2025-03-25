@@ -180,12 +180,41 @@ def get_field_token(cache):
 
     return 'name'
 
-def convert_field(cache, value):
+def handle_sprint(config, jirainst, issue, cache, value):
+    bcount = 0
+    max_count = 500
+    while True:
+        l =jirainst.boards(projectKeyOrID=config['jira']['default_project'], maxResults = max_count, startAt=bcount)
+        for board in l:
+            if board.type != 'scrum':
+                continue
+            scount = 0
+            while True:
+                s = jirainst.sprints(board_id = board.id, maxResults = max_count, startAt=scount)
+                for sprint in s:
+                    if sprint.name == value:
+                        return sprint.id
+                if len(s) < max_count:
+                    break
+                scount = scount + max_count
+
+        if len(l) < max_count:
+            break
+        bcount = bcount + max_count
+    return None
+
+def convert_field(config, jirainst, issue, cache, value):
     if 'custom' in cache:
         if cache['custom'] == "com.atlassian.jira.plugin.system.customfieldtypes:float":
             return float(value)
         if cache['custom'] == "com.pyxis.greenhopper.jira:gh-sprint":
-            return int(value)
+            if value.isdigit():
+                return int(value)
+            ret = handle_sprint(config, jirainst, issue, cache, value)
+            if ret is None:
+                sys.stderr.write("Unable to find sprint '%s'\n" % value)
+                sys.exit(1)
+            return ret
     if cache['type'] == 'number':
         return int(value)
 
@@ -197,7 +226,7 @@ def field_handle_set(config, jirainst, issue, name, value):
         sys.stderr.write("Unable to find '%s' in cache, please make sure the field exists or run jeca field cache\n" % name)
         return 1
     token = get_field_token(cache)
-    value = convert_field(cache, value)
+    value = convert_field(config, jirainst, issue, cache, value)
     final_value = {}
     if token == 'direct':
         final_value[name] = value
