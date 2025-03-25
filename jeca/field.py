@@ -10,6 +10,7 @@ import sys
 import os
 import glob
 import configparser
+import re
 from jira import JIRA
 from jeca.config import FIELD_CACHE
 
@@ -54,6 +55,15 @@ def _handle_field(jirainst, key, field, item):
         return custom_handlers[field](field, item)
     if field == 'watchers':
         return watchers(jirainst, key, item)
+    try:
+        if item.startswith('com.atlassian.greenhopper.service.sprint.Sprint'):
+            match = re.search(".*,name=([^,]*).*", item)
+            if not match:
+                sys.stderr.write("Error parsing sprint string: >%s<\n" % item)
+                return "ERROR"
+            return match[1]
+    except:
+        pass
     try:
         return "%s" % item['emailAddress']
     except:
