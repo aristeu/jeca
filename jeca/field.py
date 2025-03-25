@@ -154,6 +154,10 @@ def field_cache_get_allowed(config, jirainst, name):
     return cache['allowed']
 
 def get_field_token(cache):
+    # sigh
+    if 'custom' in cache and cache['custom'] == "com.pyxis.greenhopper.jira:gh-sprint":
+        return 'direct'
+
     # if the field has allowed values, we can quickly determine if it's 'value' or 'name'
     if 'allowed_token' in cache:
         return cache['allowed_token']
@@ -170,6 +174,8 @@ def convert_field(cache, value):
     if 'custom' in cache:
         if cache['custom'] == "com.atlassian.jira.plugin.system.customfieldtypes:float":
             return float(value)
+        if cache['custom'] == "com.pyxis.greenhopper.jira:gh-sprint":
+            return int(value)
     if cache['type'] == 'number':
         return int(value)
 
@@ -183,7 +189,9 @@ def field_handle_set(config, jirainst, issue, name, value):
     token = get_field_token(cache)
     value = convert_field(cache, value)
     final_value = {}
-    if cache['type'] == 'array':
+    if token == 'direct':
+        final_value[name] = value
+    elif cache['type'] == 'array':
         output = []
         value = value.split(',')
 
@@ -194,8 +202,6 @@ def field_handle_set(config, jirainst, issue, name, value):
             data[token] = item
             output.append(data)
         final_value[name] = output
-    elif token == 'direct':
-        final_value[name] = value
     else:
         final_value = {}
         final_value[name] = {token: value}
