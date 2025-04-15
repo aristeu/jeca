@@ -1,3 +1,4 @@
+import requests
 from email import message_from_file
 from email import policy
 import re
@@ -24,9 +25,21 @@ reject_field_list = ['comment', 'issuelinks', 'description', 'attachment', 'watc
 # only_with_aliases: only output custom fields that have aliases assigned to them
 # only_official: only output official jira fields, ignoring all custom ones
 def issue2mbox(config, f, jirainst, key, only_with_aliases = False, only_official = False):
-    issue = jirainst.issue(key)
+    try:
+        issue = jirainst.issue(key)
+    except requests.exceptions.HTTPError as http_err:
+        if http_err.response.status_code == 429:
+            time.sleep(1)
+            issue = jirainst.issue(key)
+
     updated_datetime = parse(issue.fields.updated).ctime()
-    fields = jirainst.fields()
+    try:
+        fields = jirainst.fields()
+    except requests.exceptions.HTTPError as http_err:
+        if http_err.response.status_code == 429:
+            time.sleep(1)
+            fields = jirainst.fields()
+
     field_db = {}
     custom_fields = []
 
@@ -76,7 +89,14 @@ def issue2mbox(config, f, jirainst, key, only_with_aliases = False, only_officia
     f.write("\n\n")
 
     # now comments as emails replying to the "meta" email
-    for c in jirainst.comments(key):
+    try:
+        comments = jirainst.comments(key)
+    except requests.exceptions.HTTPError as http_err:
+        if http_err.response.status_code == 429:
+            time.sleep(1)
+            comments = jirainst.comments(key)
+
+    for c in comments:
         updated_datetime = parse(c.updated).ctime()
         f.write("From %s@jeca %s\n" % (str(c.updateAuthor.key), updated_datetime))
         f.write("Message-ID: <%s-%s@jeca>\n" % (c.id, key))
