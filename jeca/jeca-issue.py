@@ -264,18 +264,35 @@ def op_set(config, jirainst, opts, args):
         op_set_usage(sys.stderr)
         sys.exit(1)
 
-    i = jirainst.issue(issue)
+    try:
+        i = jirainst.issue(issue)
+    except requests.exceptions.HTTPError as http_err:
+        if http_err.response.status_code == 429:
+            time.sleep(1)
+            i = jirainst.issue(issue)
 
     if field == 'status':
         transition_id = None
-        for t in jirainst.transitions(i):
+        try:
+            t = jirainst.transitions(i)
+        except requests.exceptions.HTTPError as http_err:
+            if http_err.response.status_code == 429:
+                time.sleep(1)
+                t = jirainst.transitions(i)
+
+        for t in t:
             if t['name'] == value:
                 transition_id = t['id']
         if transition_id is None:
             sys.stderr.write("Transition to state %s not available\n" % value)
             return 1
 
-        jirainst.transition_issue(issue = i, transition = transition_id)
+        try:
+            jirainst.transition_issue(issue = i, transition = transition_id)
+        except requests.exceptions.HTTPError as http_err:
+            if http_err.response.status_code == 429:
+                time.sleep(1)
+                jirainst.transition_issue(issue = i, transition = transition_id)
 
         return 0
     if field == 'watchers':
