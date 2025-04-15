@@ -12,6 +12,7 @@ import sys
 import subprocess
 import email
 import tempfile
+import time
 from jira import JIRA
 from jeca.alias import alias_translate, find_alias_for
 from jeca.mbox import issue2mbox, mbox2issue
@@ -266,8 +267,8 @@ def op_set(config, jirainst, opts, args):
 
     try:
         i = jirainst.issue(issue)
-    except requests.exceptions.HTTPError as http_err:
-        if http_err.response.status_code == 429:
+    except JIRAError as http_err:
+        if http_err.status_code == 429:
             time.sleep(1)
             i = jirainst.issue(issue)
 
@@ -275,8 +276,8 @@ def op_set(config, jirainst, opts, args):
         transition_id = None
         try:
             t = jirainst.transitions(i)
-        except requests.exceptions.HTTPError as http_err:
-            if http_err.response.status_code == 429:
+        except JIRAError as http_err:
+            if http_err.status_code == 429:
                 time.sleep(1)
                 t = jirainst.transitions(i)
 
@@ -289,8 +290,8 @@ def op_set(config, jirainst, opts, args):
 
         try:
             jirainst.transition_issue(issue = i, transition = transition_id)
-        except requests.exceptions.HTTPError as http_err:
-            if http_err.response.status_code == 429:
+        except JIRAError as http_err:
+            if http_err.status_code == 429:
                 time.sleep(1)
                 jirainst.transition_issue(issue = i, transition = transition_id)
 

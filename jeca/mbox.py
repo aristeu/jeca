@@ -3,6 +3,8 @@ from email import message_from_file
 from email import policy
 import re
 import sys
+from jira import JIRA, JIRAError
+import time
 
 from dateutil.parser import parse
 from datetime import datetime
@@ -27,16 +29,16 @@ reject_field_list = ['comment', 'issuelinks', 'description', 'attachment', 'watc
 def issue2mbox(config, f, jirainst, key, only_with_aliases = False, only_official = False):
     try:
         issue = jirainst.issue(key)
-    except requests.exceptions.HTTPError as http_err:
-        if http_err.response.status_code == 429:
+    except JIRAError as http_err:
+        if http_err.status_code == 429:
             time.sleep(1)
             issue = jirainst.issue(key)
 
     updated_datetime = parse(issue.fields.updated).ctime()
     try:
         fields = jirainst.fields()
-    except requests.exceptions.HTTPError as http_err:
-        if http_err.response.status_code == 429:
+    except JIRAError as http_err:
+        if http_err.status_code == 429:
             time.sleep(1)
             fields = jirainst.fields()
 
@@ -91,8 +93,8 @@ def issue2mbox(config, f, jirainst, key, only_with_aliases = False, only_officia
     # now comments as emails replying to the "meta" email
     try:
         comments = jirainst.comments(key)
-    except requests.exceptions.HTTPError as http_err:
-        if http_err.response.status_code == 429:
+    except JIRAError as err:
+        if err.status_code == 429:
             time.sleep(1)
             comments = jirainst.comments(key)
 
