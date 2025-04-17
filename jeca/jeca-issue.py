@@ -13,7 +13,7 @@ import subprocess
 import email
 import tempfile
 import time
-from jira import JIRA
+from jira import JIRA, JIRAError
 from jeca.alias import alias_translate, find_alias_for
 from jeca.mbox import issue2mbox, mbox2issue
 from jeca.field import get_all_fields, handle_field, field_cache_get, field_handle_set, field_translate_jql

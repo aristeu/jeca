@@ -11,7 +11,8 @@ import os
 import glob
 import configparser
 import re
-from jira import JIRA
+import time
+from jira import JIRA, JIRAError
 from jeca.config import FIELD_CACHE
 
 # dictionary of custom field handlers
@@ -39,14 +40,27 @@ def init_all_custom_handlers(config):
 
 def get_all_fields(jirainst):
     result = []
-    for f in jirainst.fields():
+    try:
+        fields = jirainst.fields();
+    except JIRAError as http_err:
+        if http_err.status_code == 429:
+            fields = jirainst.fields();
+
+    for f in fields: 
         result.append(str(f['id']))
 
     return result
 
 def watchers(jirainst, key, issue):
     results = []
-    for w in jirainst.watchers(key).watchers:
+    try:
+        watchers = jirainst.watchers(key).watchers;
+    except JIRAError as http_err:
+        if http_err.status_code == 429:
+            time.sleep(1)
+            watchers = jirainst.watchers(key).watchers;
+
+    for w in watchers:
         results.append(w.raw['name'])
     return ','.join(results)
 
@@ -245,7 +259,12 @@ def field_handle_set(config, jirainst, issue, name, value):
         final_value = {}
         final_value[name] = {token: value}
 
-    issue.update(fields = final_value)
+    try:
+        issue.update(fields = final_value)
+    except JIRAError as http_err:
+        if http_err.status_code == 429:
+            time.sleep(1)
+            issue.update(fields = final_value)
 
     return 0
 
