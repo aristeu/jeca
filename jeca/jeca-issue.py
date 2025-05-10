@@ -149,9 +149,19 @@ def op_list(config, jirainst, opts, args):
     try:
         # UGH
         if len(fields) > 20:
-            result = jirainst.search_issues(jql_str = jql, maxResults = 500, validate_query = True)
+            try:
+                result = jirainst.search_issues(jql_str = jql, maxResults = 500, validate_query = True)
+            except JIRAError as http_err:
+                if http_err.status_code == 429:
+                    time.sleep(1)
+                    result = jirainst.search_issues(jql_str = jql, maxResults = 500, validate_query = True)
         else:
-            result = jirainst.search_issues(jql_str = jql, fields = fields, maxResults = 500, validate_query = True)
+            try:
+                result = jirainst.search_issues(jql_str = jql, fields = fields, maxResults = 500, validate_query = True)
+            except JIRAError as http_err:
+                if http_err.status_code == 429:
+                    time.sleep(1)
+                    result = jirainst.search_issues(jql_str = jql, fields = fields, maxResults = 500, validate_query = True)
     except Exception as ex:
         sys.stderr.write("Error executing search: %s\n" % str(ex))
         sys.exit(2)
