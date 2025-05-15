@@ -199,13 +199,25 @@ def handle_sprint(config, jirainst, issue, cache, value):
     bcount = 0
     max_count = 500
     while True:
-        l =jirainst.boards(projectKeyOrID=config['jira']['default_project'], maxResults = max_count, startAt=bcount)
+        try:
+            l =jirainst.boards(projectKeyOrID=config['jira']['default_project'], maxResults = max_count, startAt=bcount)
+        except JIRAError as http_err:
+            if http_err.status_code == 429:
+                time.sleep(1)
+                l =jirainst.boards(projectKeyOrID=config['jira']['default_project'], maxResults = max_count, startAt=bcount)
+
         for board in l:
             if board.type != 'scrum':
                 continue
             scount = 0
             while True:
-                s = jirainst.sprints(board_id = board.id, maxResults = max_count, startAt=scount)
+                try:
+                    s = jirainst.sprints(board_id = board.id, maxResults = max_count, startAt=scount)
+                except JIRAError as http_err:
+                    if http_err.status_code == 429:
+                        time.sleep(1)
+                        s = jirainst.sprints(board_id = board.id, maxResults = max_count, startAt=scount)
+
                 for sprint in s:
                     if sprint.name == value:
                         return sprint.id
