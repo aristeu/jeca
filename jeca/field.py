@@ -44,9 +44,10 @@ def get_all_fields(jirainst):
         fields = jirainst.fields();
     except JIRAError as http_err:
         if http_err.status_code == 429:
+            time.sleep(1)
             fields = jirainst.fields();
 
-    for f in fields: 
+    for f in fields:
         result.append(str(f['id']))
 
     return result
