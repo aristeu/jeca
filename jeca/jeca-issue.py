@@ -87,9 +87,11 @@ def op_list(config, jirainst, opts, args):
             translate_jql = False
         elif option == '--header':
             header = True
+        elif option == '-t' or option == '--type':
+            search_filter.append("type = \"%s\"" % value)
         else:
             sys.stderr.write("Unknown option: %s\n" % option)
-            usage(sys.stderr)
+            op_list_usage(sys.stderr)
             sys.exit(2)
 
     if len(jql) > 0 and translate_jql:
@@ -205,6 +207,7 @@ def op_list_usage(f):
     f.write("-s,--saved <name>\tuse saved JQL named <name>\n")
     f.write("-S,--save <name>\tsave JQL as <name> along with --fields. Final filter based on options or --jql will be saved\n")
     f.write("-j <key>\t\tOnly list a specific issue\n")
+    f.write("-t,--type <type>\t\tFilter by issue type\n")
     f.write("-V\t\tInclude field name in each column with the format \"field:value\"\n")
     f.write("-a\t\tList issues even if they're closed\n")
     f.write("--header\t\tPrint a header on top with field names\n")
@@ -366,8 +369,8 @@ def op_links_usage(f):
 MODULE_NAME = "issue"
 MODULE_OPERATIONS = { "list": op_list, "mbox": op_mbox, "set": op_set, "links": op_links }
 MODULE_OPERATION_USAGE = { "list": op_list_usage, "mbox": op_mbox_usage, "set": op_set_usage, "links": op_links_usage }
-MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:A:s:S:j:Va", "mbox": "crf:", "set": "j:f:v:", "links": "j:f:" }
-MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql=", "save=", "saved=", "raw-jql", "header"], "mbox": ["comment","all_fields","official"], "set": [], "links": [] }
+MODULE_OPERATION_SHORT_OPTIONS = { "list": "f:p:A:s:S:j:Vat:", "mbox": "crf:", "set": "j:f:v:", "links": "j:f:" }
+MODULE_OPERATION_LONG_OPTIONS = { "list": ["fields=", "project=", "assignee=", "jql=", "save=", "saved=", "raw-jql", "header", "type="], "mbox": ["comment","all_fields","official"], "set": [], "links": [] }
 MODULE_OPERATION_REQUIRED_ARGS = { "list": 0, "mbox": 1, "set": 0, "links": 0 }
 
 def list_operations(f):
