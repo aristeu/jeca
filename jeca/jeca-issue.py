@@ -157,6 +157,9 @@ def op_list(config, jirainst, opts, args):
                 if http_err.status_code == 429:
                     time.sleep(1)
                     result = jirainst.search_issues(jql_str = jql, maxResults = 500, validate_query = True)
+            else:
+                sys.stderr.write("Error: %s\n" % str(http_err))
+                sys.exit(1)
         else:
             try:
                 result = jirainst.search_issues(jql_str = jql, fields = fields, maxResults = 500, validate_query = True)
@@ -164,6 +167,9 @@ def op_list(config, jirainst, opts, args):
                 if http_err.status_code == 429:
                     time.sleep(1)
                     result = jirainst.search_issues(jql_str = jql, fields = fields, maxResults = 500, validate_query = True)
+                else:
+                    sys.stderr.write("Error: %s\n" % str(http_err))
+                    sys.exit(1)
     except Exception as ex:
         sys.stderr.write("Error executing search: %s\n" % str(ex))
         sys.exit(2)
