@@ -30,7 +30,7 @@ def op_list(config, jirainst, opts, args):
             argv['projectKeyOrID'] = value
         else:
             sys.stderr.write("Unknown option: %s\n" % option)
-            usage(sys.stderr)
+            op_list_usage(sys.stderr)
             sys.exit(2)
 
     count = 0;

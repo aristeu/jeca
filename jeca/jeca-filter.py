@@ -29,6 +29,10 @@ def op_list(config, jirainst, opts, args):
                         sys.stderr.write("Field %s not available (%s)\n" % (f, ','.join(available_fields)))
                         sys.exit(1)
                     fields = value.split(',')
+        else:
+            sys.stderr.write("Unknown option: %s\n" % option)
+            op_list_usage(sys.stderr)
+            sys.exit(1)
 
     results = []
     for f in jirainst.favourite_filters():

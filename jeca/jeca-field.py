@@ -36,6 +36,10 @@ def op_list(config, jirainst, opts, args):
             custom = False
         elif opt == '--nodefault':
             default = False
+        else:
+            sys.stderr.write("Unknown option: %s\n" % option)
+            op_list_usage(sys.stderr)
+            sys.exit(1)
 
     results = []
     for f in jirainst.fields():

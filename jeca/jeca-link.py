@@ -26,7 +26,7 @@ def op_list(config, jirainst, opts, args):
             issue = value
         else:
             sys.stderr.write("Unknown option: %s\n" % option)
-            usage(sys.stderr)
+            op_list_usage(sys.stderr)
             sys.exit(2)
 
     if issue is None:
