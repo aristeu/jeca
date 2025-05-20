@@ -272,13 +272,22 @@ def op_set(config, jirainst, opts, args):
     issue = None
     field = None
     value = None
+    resolution = None
     for option,v in opts:
         if option == '-j':
             issue = v
         elif option == '-f':
             field = alias_translate(config, v)
         elif option == '-v':
-            value = v
+            if field == 'status':
+                value = v.split('/')[0]
+                try:
+                    resolution = v.split('/')[1]
+                except:
+                    resolution = None
+                    pass
+            else:
+                value = v
 
     if issue is None or field is None or value is None:
         op_set_usage(sys.stderr)
@@ -307,12 +316,18 @@ def op_set(config, jirainst, opts, args):
             sys.stderr.write("Transition to state %s not available\n" % value)
             return 1
 
+        transition_args = {}
+        transition_args["issue"] = i
+        transition_args["transition"] = transition_id
+        if resolution is not None:
+            transition_args["resolution"] = {'name': resolution}
+
         try:
-            jirainst.transition_issue(issue = i, transition = transition_id)
+            jirainst.transition_issue(**transition_args)
         except JIRAError as http_err:
             if http_err.status_code == 429:
                 time.sleep(1)
-                jirainst.transition_issue(issue = i, transition = transition_id)
+                jirainst.transition_issue(**transition_args)
 
         return 0
     if field == 'watchers':
